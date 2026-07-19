@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://www.luckyliving.com',
+  site: 'https://lucky-living-astro.vercel.app',
 
   integrations: [
     sitemap({

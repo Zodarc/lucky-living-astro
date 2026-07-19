@@ -1,0 +1,19 @@
+---
+/**
+ * reviews/[slug].astro — Dynamic product review pages
+ */
+import ProductLayout from '@layouts/ProductLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const products = await getCollection('products', (e) => !e.data.draft);
+  return products.map((entry) => ({
+    params: { slug: entry.slug },
+    props:  { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+---
+
+<ProductLayout entry={entry} />

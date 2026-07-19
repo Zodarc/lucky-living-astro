@@ -1,0 +1,100 @@
+---
+/**
+ * NewsletterSection.astro
+ * Newsletter signup section. Two variants:
+ *   - 'standalone' (default): full dark section used on homepage
+ *   - 'footer': compact strip used inside Footer.astro
+ */
+import { SITE } from '@data/site';
+
+interface Props {
+  variant?: 'standalone' | 'footer';
+}
+
+const { variant = 'standalone' } = Astro.props;
+
+const { newsletter } = SITE;
+if (!newsletter.enabled) return;
+---
+
+{variant === 'standalone' && (
+  <section
+    class="bg-slate-900 py-16 lg:py-20"
+    aria-labelledby="newsletter-heading"
+  >
+    <div class="container">
+      <div class="max-w-2xl mx-auto text-center">
+
+        <p class="text-xs font-semibold uppercase tracking-widest text-brand-accent mb-4">
+          Newsletter
+        </p>
+        <h2 id="newsletter-heading" class="font-serif text-3xl lg:text-4xl font-bold text-white mb-4">
+          {newsletter.headline}
+        </h2>
+        <p class="text-slate-400 text-lg leading-relaxed mb-8">
+          {newsletter.subheading}
+        </p>
+
+        <form
+          class="flex flex-col sm:flex-row gap-3 justify-center"
+          action={newsletter.formAction || '#'}
+          method="post"
+          aria-label="Newsletter signup"
+        >
+          <label for="nl-email" class="sr-only">Your email address</label>
+          <input
+            id="nl-email"
+            type="email"
+            name="email"
+            placeholder={newsletter.placeholder}
+            required
+            autocomplete="email"
+            class="input-dark flex-1 min-w-0 max-w-sm"
+          />
+          <button type="submit" class="btn-primary whitespace-nowrap">
+            {newsletter.buttonText}
+          </button>
+        </form>
+
+        <p class="mt-4 text-xs text-slate-600">
+          No spam, ever. Unsubscribe any time.
+        </p>
+
+      </div>
+    </div>
+  </section>
+)}
+
+{variant === 'footer' && (
+  <div class="border-b border-slate-800">
+    <div class="container py-10">
+      <div class="flex flex-col md:flex-row items-start md:items-center
+                  justify-between gap-6">
+        <div>
+          <p class="font-semibold text-white text-lg">{newsletter.headline}</p>
+          <p class="text-sm text-slate-400 mt-1">{newsletter.subheading}</p>
+        </div>
+        <form
+          class="flex gap-2 w-full md:w-auto flex-shrink-0"
+          action={newsletter.formAction || '#'}
+          method="post"
+          aria-label="Newsletter signup"
+        >
+          <label for="nl-footer-email" class="sr-only">Your email address</label>
+          <input
+            id="nl-footer-email"
+            type="email"
+            name="email"
+            placeholder={newsletter.placeholder}
+            required
+            autocomplete="email"
+            class="input-dark text-sm py-3 flex-1 min-w-[220px]"
+          />
+          <button type="submit" class="btn-primary text-sm py-3 px-5 whitespace-nowrap">
+            {newsletter.buttonText}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+)}

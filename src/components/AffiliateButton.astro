@@ -1,0 +1,59 @@
+---
+/**
+ * AffiliateButton.astro
+ * Renders an affiliate CTA link with correct rel attributes.
+ * Always opens in a new tab with noopener/noreferrer for security.
+ */
+interface Props {
+  href:   string;
+  label?: string;
+  size?:  'sm' | 'md' | 'lg';
+  block?: boolean;
+}
+
+const {
+  href,
+  label = 'Check Price on Amazon',
+  size  = 'md',
+  block = false,
+} = Astro.props;
+
+const sizeClasses = {
+  sm:  'px-4 py-2 text-xs',
+  md:  'px-6 py-3 text-sm',
+  lg:  'px-8 py-4 text-base',
+};
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="nofollow sponsored noopener noreferrer"
+  class:list={[
+    'inline-flex items-center justify-center gap-2 rounded-full font-semibold',
+    'bg-brand-gold text-white border-2 border-brand-gold no-underline',
+    'transition-all duration-150 hover:bg-yellow-700 hover:border-yellow-700 hover:shadow-card-lg',
+    'active:translate-y-px',
+    sizeClasses[size],
+    block ? 'w-full' : '',
+  ]}
+  aria-label={`${label} — affiliate link, opens in new tab`}
+>
+  {label}
+  <!-- External link indicator -->
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    aria-hidden="true"
+    class="flex-shrink-0"
+  >
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/>
+    <line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>
+</a>

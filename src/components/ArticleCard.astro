@@ -1,0 +1,206 @@
+---
+/**
+ * ArticleCard.astro
+ *
+ * Premium content card for the Lucky Living article grid.
+ *
+ * Variants:
+ *   default  — vertical stack, 16:9 image, used in all grids
+ *   featured — wide horizontal layout (md+), larger type, deeper image
+ *
+ * Animations (pure CSS, zero JS):
+ *   - Card lifts and shadow deepens on hover   (.card base styles in global.css)
+ *   - Image zooms gently into frame on hover   (.group-zoom in global.css)
+ *   - Title colour shifts toward brand-accent  (transition-colors)
+ *   - Category badge tints from category hex   (inline style)
+ *
+ * All props and data fields from the original component are preserved.
+ */
+import { getCategoryBySlug } from '@data/categories';
+import { getReadingTime }    from '@utils/readingTime';
+import { formatDate, isoDate } from '@utils/relatedContent';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry:     CollectionEntry<'articles'>;
+  featured?: boolean;   // horizontal hero-slot variant
+}
+
+const { entry, featured = false } = Astro.props;
+const { data, slug, body } = entry;
+
+const category    = getCategoryBySlug(data.category);
+const readingTime = getReadingTime(body ?? '');
+
+// Pre-compute a slightly more opaque badge background (18% opacity as hex)
+// so it reads clearly over both light and image backgrounds.
+const badgeBg     = category ? `${category.accentHex}1f` : 'rgb(0 0 0 / 0.12)';
+const badgeColor  = category?.accentHex ?? '#64748B';
+---
+
+<!--
+  Root element is the <a> itself — the entire card is the click target.
+  .card from global.css provides: white bg, border, border-radius (1rem),
+  box-shadow, and the translateY(-2px) + deeper shadow on hover.
+  We add will-change:transform so the browser composites this layer early.
+-->
+<a
+  href={`/articles/${slug}/`}
+  class:list={[
+    'card group flex flex-col no-underline',
+    'will-change-transform',
+    featured ? 'md:flex-row' : '',
+  ]}
+  aria-label={data.title}
+>
+
+  <!-- ── Image block ──────────────────────────────────────── -->
+  <div
+    class:list={[
+      // Clip the zoom without clipping the outer card border-radius.
+      // overflow-hidden here is on a child, so card corners are safe.
+      'relative overflow-hidden bg-slate-100 flex-shrink-0',
+      featured
+        ? 'aspect-video md:aspect-auto md:w-72 lg:w-80'
+        : 'aspect-[16/10]',   // slightly shorter than 16/9 → more image visible
+    ]}
+  >
+
+    {data.featuredImage ? (
+      <img
+        src={data.featuredImage}
+        alt={data.featuredImageAlt || data.title}
+        width={featured ? 640 : 800}
+        height={featured ? 480 : 500}
+        class:list={[
+          // .group-zoom is defined in global.css:
+          // .group:hover .group-zoom { transform: scale(1.04); transition: ... }
+          'group-zoom w-full h-full object-cover',
+          // Separate transition for brightness lift — layers on top of the zoom
+          'transition-[filter] duration-500',
+          'group-hover:brightness-[1.03]',
+        ]}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <!--
+        No-image fallback: category-tinted gradient so the card
+        never looks broken, even without an uploaded image.
+      -->
+      <div
+        class="w-full h-full flex items-center justify-center"
+        style={`background: linear-gradient(135deg, ${badgeBg} 0%, ${badgeBg.slice(0,7)}0d 100%);`}
+        aria-hidden="true"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="40" height="40" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="1.2"
+          class="text-slate-300"
+          aria-hidden="true"
+        >
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+          <circle cx="9" cy="9" r="2"/>
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+        </svg>
+      </div>
+    )}
+
+    <!-- Category badge — absolute over image, bottom-left -->
+    {category && (
+      <span
+        class="absolute bottom-3 left-3 badge backdrop-blur-sm"
+        style={`background-color: ${badgeBg}; color: ${badgeColor};
+                backdrop-filter: blur(8px) saturate(150%);
+                -webkit-backdrop-filter: blur(8px) saturate(150%);`}
+      >
+        {category.name}
+      </span>
+    )}
+
+  </div><!-- /image block -->
+
+
+  <!-- ── Body ─────────────────────────────────────────────── -->
+  <div
+    class:list={[
+      'flex flex-col flex-1 min-w-0',
+      featured ? 'p-6 lg:p-8' : 'p-5',
+      'gap-0',     // gap managed via margin on children for tighter control
+    ]}
+  >
+
+    <!-- Reading time eyebrow — sits above title -->
+    <p class="eyebrow mb-2.5 flex items-center gap-1.5">
+      <!-- Clock icon -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="11" height="11" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.5"
+        aria-hidden="true"
+        class="opacity-70"
+      >
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      {readingTime}
+    </p>
+
+    <!-- Title -->
+    <h3
+      class:list={[
+        'font-serif font-bold leading-snug text-balance',
+        'text-slate-900 transition-colors duration-150',
+        'group-hover:text-brand-accent',
+        'line-clamp-3',
+        featured ? 'text-2xl lg:text-3xl mb-3' : 'text-lg mb-2.5',
+      ]}
+    >
+      {data.title}
+    </h3>
+
+    <!-- Description — grows to fill available space -->
+    <p
+      class:list={[
+        'text-slate-500 leading-relaxed flex-1 line-clamp-2',
+        featured ? 'text-base mb-5' : 'text-sm mb-4',
+      ]}
+    >
+      {data.description}
+    </p>
+
+    <!-- Meta row: author · separator · date -->
+    <div class="flex items-center gap-2.5 mt-auto pt-4 border-t border-slate-100">
+
+      <!-- Author avatar placeholder or initials -->
+      <span
+        class="flex items-center justify-center w-6 h-6 rounded-full
+               bg-slate-200 text-slate-500 text-[10px] font-semibold
+               shrink-0 select-none"
+        aria-hidden="true"
+      >
+        {(data.author ?? 'L').charAt(0).toUpperCase()}
+      </span>
+
+      <!-- Author name -->
+      <span class="text-xs font-medium text-slate-700 truncate">
+        {data.author ?? 'Lucky Living'}
+      </span>
+
+      <!-- Visual separator -->
+      <span class="text-slate-300 text-xs select-none" aria-hidden="true">·</span>
+
+      <!-- Publish date -->
+      <time
+        class="text-xs text-slate-400 ml-auto shrink-0"
+        datetime={isoDate(data.publishDate)}
+      >
+        {formatDate(data.publishDate)}
+      </time>
+
+    </div><!-- /meta -->
+
+  </div><!-- /body -->
+
+</a>

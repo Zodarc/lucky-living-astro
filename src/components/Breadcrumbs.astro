@@ -1,0 +1,72 @@
+---
+/**
+ * Breadcrumbs.astro
+ * Accessible breadcrumb trail with JSON-LD schema injected inline.
+ */
+interface BreadcrumbItem {
+  label: string;
+  href:  string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="py-4">
+  <ol
+    class="flex flex-wrap items-center gap-1 text-sm text-slate-400"
+    role="list"
+    itemscope
+    itemtype="https://schema.org/BreadcrumbList"
+  >
+    {items.map((item, i) => {
+      const isLast = i === items.length - 1;
+      return (
+        <li
+          class="flex items-center gap-1"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          {isLast ? (
+            <span
+              class="text-slate-600 font-medium truncate max-w-[200px] sm:max-w-xs"
+              itemprop="name"
+              aria-current="page"
+            >
+              {item.label}
+            </span>
+          ) : (
+            <>
+              <a
+                href={item.href}
+                class="hover:text-slate-600 transition-colors duration-150 no-underline"
+                itemprop="item"
+              >
+                <span itemprop="name">{item.label}</span>
+              </a>
+              <!-- Separator -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+                class="text-slate-300 flex-shrink-0"
+              >
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </>
+          )}
+          <meta itemprop="position" content={String(i + 1)} />
+        </li>
+      );
+    })}
+  </ol>
+</nav>

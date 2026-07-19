@@ -1,0 +1,1445 @@
+---
+/**
+ * index.astro — Homepage
+ *
+ * Sections:
+ *   1. Hero          — cinematic full-bleed image, two-col layout, glass panel
+ *   2. Trust bar     — three brand pillars
+ *   3. Categories    — bento editorial cards
+ *   4. Latest        — featured lead + 3-col grid
+ *   5. Reviews       — product cards
+ *   6. Editor picks  — featured articles
+ *   7. Newsletter    — full-width signup
+ */
+import BaseLayout          from '@layouts/BaseLayout.astro';
+import ArticleCard         from '@components/ArticleCard.astro';
+import ProductCard         from '@components/ProductCard.astro';
+import NewsletterSection   from '@components/NewsletterSection.astro';
+import { SITE }            from '@data/site';
+import {
+  getFeaturedCategories,
+  getCategoryBySlug,
+} from '@data/categories';
+import { buildWebsiteSchema, buildCanonical } from '@utils/seo';
+import { formatDate, isoDate } from '@utils/relatedContent';
+import { getCollection }   from 'astro:content';
+
+const allArticles = await getCollection('articles', (e) => !e.data.draft);
+const allProducts = await getCollection('products', (e) => !e.data.draft);
+
+const latestArticles = allArticles
+  .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
+  .slice(0, 6);
+
+const featuredArticles = allArticles
+  .filter((a) => a.data.featured)
+  .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
+  .slice(0, 3);
+
+const topProducts = allProducts
+  .filter((p) => p.data.featured)
+  .sort((a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0))
+  .slice(0, 4);
+
+const featuredCategories = getFeaturedCategories();
+const websiteSchema      = buildWebsiteSchema();
+const canonical          = buildCanonical('/');
+const heroArticle        = featuredArticles[0] ?? latestArticles[0] ?? null;
+---
+
+<BaseLayout
+  description={SITE.description}
+  canonical={canonical}
+  schema={websiteSchema}
+>
+
+<!-- HERO -->
+<section
+  class="hero-section relative overflow-hidden text-white"
+  aria-labelledby="hero-heading"
+  style="min-height: clamp(600px, 90vh, 1000px);"
+>
+  <!-- Background image -->
+  <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
+    <img
+      src="/images/hero/lucky-living-hero.jpg"
+      alt=""
+      width="1920"
+      height="1080"
+      class="hero-zoom w-full h-full object-cover object-center"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </div>
+
+  <!-- Dark scrim -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    aria-hidden="true"
+    style="background: linear-gradient(160deg, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.48) 45%, rgb(0 0 0 / 0.68) 100%);"
+  />
+
+  <!-- Radial glow -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    aria-hidden="true"
+    style="background: radial-gradient(ellipse 80% 60% at 20% 30%, rgb(37 99 235 / 0.18) 0%, transparent 70%);"
+  />
+
+  <!-- Vignette -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    aria-hidden="true"
+    style="background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgb(0 0 0 / 0.55) 100%);"
+  />
+
+  <!-- Light ray -->
+  <div
+    class="hero-ray absolute pointer-events-none"
+    aria-hidden="true"
+    style="inset: -20% -10%; background: linear-gradient(105deg, transparent 20%, rgb(255 255 255 / 0.055) 40%, rgb(255 255 255 / 0.03) 50%, transparent 65%);"
+  />
+
+  <!-- Blob blue bottom-left -->
+  <div
+    class="hero-float absolute -bottom-24 -left-24 rounded-full pointer-events-none"
+    aria-hidden="true"
+    style="width:480px; height:480px; background: radial-gradient(circle, rgb(37 99 235 / 0.22) 0%, transparent 70%); filter: blur(48px);"
+  />
+
+  <!-- Blob amber top-right -->
+  <div
+    class="hero-float-alt absolute -top-16 -right-16 rounded-full pointer-events-none"
+    aria-hidden="true"
+    style="width:360px; height:360px; background: radial-gradient(circle, rgb(217 119 6 / 0.14) 0%, transparent 70%); filter: blur(40px);"
+  />
+
+  <!-- Content grid -->
+  <div
+    class="container relative z-10 flex items-center"
+    style="min-height: clamp(600px, 90vh, 1000px); padding-block: clamp(5rem, 10vh, 8rem);"
+  >
+    <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+      <!-- LEFT: copy -->
+      <div class="flex flex-col">
+
+        <!-- Badge -->
+        <div class="hero-copy-in mb-6" style="animation-delay: 100ms;">
+          <span
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
+            style="background: rgb(255 255 255 / 0.1); border: 1px solid rgb(255 255 255 / 0.18); backdrop-filter: blur(8px); color: rgb(255 255 255 / 0.9);"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" aria-hidden="true"></span>
+            Smart Living &bull; Tech &bull; Home
+          </span>
+        </div>
+
+        <!-- Headline -->
+        <h1
+          id="hero-heading"
+          class="hero-copy-in font-serif font-bold text-white leading-tight tracking-tight text-balance mb-6"
+          style="font-size: clamp(2.6rem, 5.5vw, 4.25rem); animation-delay: 220ms;"
+        >
+          Transform Your Home Into A<br />
+          <span style="background: linear-gradient(90deg, #93C5FD, #6EE7B7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            Smarter, Better Place.
+          </span>
+        </h1>
+
+        <!-- Subtext -->
+        <p
+          class="hero-copy-in text-slate-300 leading-relaxed mb-8 max-w-xl"
+          style="font-size: clamp(1rem, 1.4vw, 1.125rem); animation-delay: 340ms;"
+        >
+          Honest reviews, expert picks, and lifestyle upgrades — curated for
+          people who care about quality and refuse to settle for second-best.
+        </p>
+
+        <!-- CTAs -->
+        <div class="hero-copy-in flex flex-wrap gap-3 mb-10" style="animation-delay: 460ms;">
+          <a href="/category/reviews/" class="btn-primary btn-lg hero-cta-primary">
+            Explore Articles
+          </a>
+          <a href="/category/reviews/" class="btn-outline btn-lg">
+            Latest Reviews
+          </a>
+        </div>
+
+        <!-- Trust indicators -->
+        <div
+          class="hero-copy-in flex flex-wrap items-center gap-5 pt-6"
+          style="border-top: 1px solid rgb(255 255 255 / 0.12); animation-delay: 560ms;"
+        >
+          {[
+            { icon: '★★★★★', label: 'Trusted Guides' },
+            { icon: '100+',   label: 'Reviews' },
+            { icon: '↻',      label: 'Weekly Updates' },
+          ].map((item) => (
+            <div class="flex items-center gap-2">
+              <span class="text-amber-400 text-sm font-bold" aria-hidden="true">{item.icon}</span>
+              <span class="text-xs text-slate-300 font-medium">{item.label}</span>
+            </div>
+          ))}
+        </div>
+
+      </div>
+
+      <!-- RIGHT: glass panel -->
+      <div class="hero-panel-in lg:justify-self-end w-full max-w-sm mx-auto lg:mx-0">
+        <div
+          class="rounded-2xl overflow-hidden"
+          style="background: rgb(255 255 255 / 0.07); border: 1px solid rgb(255 255 255 / 0.14); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); box-shadow: 0 24px 48px -8px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.1);"
+        >
+
+          <!-- Panel header -->
+          <div class="px-5 pt-5 pb-4" style="border-bottom: 1px solid rgb(255 255 255 / 0.08);">
+            <p class="text-xs font-semibold uppercase tracking-widest" style="color: rgb(255 255 255 / 0.5);">
+              What's New
+            </p>
+          </div>
+
+          <!-- Latest article -->
+          {heroArticle && (
+            <a
+              href={`/articles/${heroArticle.slug}/`}
+              class="group flex gap-4 items-start px-5 py-4 no-underline transition-colors duration-150"
+              style="border-bottom: 1px solid rgb(255 255 255 / 0.06);"
+              aria-label={`Latest article: ${heroArticle.data.title}`}
+            >
+              <div class="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-slate-800">
+                {heroArticle.data.featuredImage ? (
+                  <img
+                    src={heroArticle.data.featuredImage}
+                    alt=""
+                    width="56"
+                    height="56"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    loading="eager"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-slate-700"></div>
+                )}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: rgb(147 197 253 / 0.8);">
+                  Latest Article
+                </p>
+                <p class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-blue-300 transition-colors duration-150">
+                  {heroArticle.data.title}
+                </p>
+                <p class="text-xs mt-1" style="color: rgb(255 255 255 / 0.4);">
+                  {formatDate(heroArticle.data.publishDate)}
+                </p>
+              </div>
+            </a>
+          )}
+
+          <!-- Featured product -->
+          {topProducts[0] && (
+            <a
+              href={`/reviews/${topProducts[0].slug}/`}
+              class="group flex gap-4 items-start px-5 py-4 no-underline transition-colors duration-150"
+              style="border-bottom: 1px solid rgb(255 255 255 / 0.06);"
+              aria-label={`Featured review: ${topProducts[0].data.name}`}
+            >
+              <div class="flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-slate-800 flex items-center justify-center">
+                {topProducts[0].data.image ? (
+                  <img
+                    src={topProducts[0].data.image}
+                    alt=""
+                    width="56"
+                    height="56"
+                    class="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span class="text-slate-600 text-lg" aria-hidden="true">📦</span>
+                )}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: rgb(252 211 77 / 0.8);">
+                  Featured Review
+                </p>
+                <p class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-amber-300 transition-colors duration-150">
+                  {topProducts[0].data.name}
+                </p>
+                {topProducts[0].data.rating && (
+                  <div class="flex items-center gap-1 mt-1">
+                    <span class="text-amber-400 text-xs" aria-hidden="true">★</span>
+                    <span class="text-xs font-semibold" style="color: rgb(252 211 77 / 0.9);">{topProducts[0].data.rating}</span>
+                    <span class="text-xs" style="color: rgb(255 255 255 / 0.35);">/5</span>
+                  </div>
+                )}
+              </div>
+            </a>
+          )}
+
+          <!-- Trending category -->
+          {featuredCategories[0] && (
+            <a
+              href={`/category/${featuredCategories[0].slug}/`}
+              class="group flex gap-4 items-center px-5 py-4 no-underline transition-colors duration-150"
+              style="border-bottom: 1px solid rgb(255 255 255 / 0.06);"
+              aria-label={`Trending: ${featuredCategories[0].name}`}
+            >
+              <div
+                class="flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center text-white font-serif font-bold text-lg"
+                style={`background: ${featuredCategories[0].accentHex}33; border: 1px solid ${featuredCategories[0].accentHex}44;`}
+                aria-hidden="true"
+              >
+                {featuredCategories[0].name.charAt(0)}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: rgb(167 243 208 / 0.8);">
+                  Trending
+                </p>
+                <p class="text-sm font-semibold text-white leading-snug group-hover:text-emerald-300 transition-colors duration-150">
+                  {featuredCategories[0].name}
+                </p>
+                <p class="text-xs mt-0.5 line-clamp-1" style="color: rgb(255 255 255 / 0.4);">
+                  {featuredCategories[0].description}
+                </p>
+              </div>
+            </a>
+          )}
+
+          <!-- Newsletter CTA -->
+          <div class="px-5 py-4">
+            <p class="text-xs font-medium mb-3" style="color: rgb(255 255 255 / 0.55);">
+              Get weekly picks in your inbox
+            </p>
+            <a
+              href="#newsletter"
+              class="hero-newsletter-cta flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold no-underline transition-all duration-200"
+              style="background: rgb(37 99 235 / 0.25); border: 1px solid rgb(37 99 235 / 0.4); color: #93C5FD;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              Subscribe Free
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom fade -->
+  <div
+    class="absolute bottom-0 inset-x-0 h-20 pointer-events-none"
+    aria-hidden="true"
+    style="background: linear-gradient(to bottom, transparent, #f8fafc);"
+  />
+
+</section>
+
+<!-- TRUST BAR -->
+<div class="bg-slate-50 border-b border-slate-200">
+  <div class="container py-5">
+    <ul
+      class="flex flex-col sm:flex-row items-center justify-center divide-y sm:divide-y-0 sm:divide-x divide-slate-200 gap-0 text-center"
+      role="list"
+    >
+      {[
+        { label: 'Tested & Reviewed',     sub: 'Every product hands-on' },
+        { label: 'No Paid Reviews',        sub: 'Editorial independence always' },
+        { label: 'Affiliate Transparency', sub: 'Disclosed on every page' },
+      ].map((item) => (
+        <li class="flex-1 py-3 sm:py-0 px-6">
+          <p class="text-sm font-semibold text-slate-800">{item.label}</p>
+          <p class="text-xs text-slate-400 mt-0.5">{item.sub}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CATEGORIES — Premium editorial bento grid
+     ─────────────────────────────────────────────────────────
+     Layout:
+       Desktop  : 4-col grid; first card spans 2 cols, is taller
+       Tablet   : 2-col grid
+       Mobile   : single column
+     Each card:
+       [0] full-bleed background image (object-cover, zoom on hover)
+       [1] layered overlay: gradient + vignette + noise
+       [2] glassmorphism info panel (bottom)
+       [3] hover: lift + image zoom + panel rise + arrow slide
+═══════════════════════════════════════════════════════════════ -->
+<section
+  class="cat-section relative py-20 lg:py-28 overflow-hidden"
+  aria-labelledby="categories-heading"
+>
+
+  <!-- Section decorative background -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+       style="background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);" />
+
+  <!-- Blurred background blobs -->
+  <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full pointer-events-none"
+       aria-hidden="true"
+       style="background: radial-gradient(circle, rgb(37 99 235 / 0.06) 0%, transparent 70%);
+              filter: blur(60px); transform: translateY(-30%);" />
+  <div class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full pointer-events-none"
+       aria-hidden="true"
+       style="background: radial-gradient(circle, rgb(5 150 105 / 0.07) 0%, transparent 70%);
+              filter: blur(50px); transform: translateY(20%);" />
+
+  <div class="container relative z-10">
+
+    <!-- ── Section header ───────────────────────────────── -->
+    <div class="text-center mb-12 lg:mb-16">
+      <p class="eyebrow mb-3">Browse Topics</p>
+      <h2
+        id="categories-heading"
+        class="font-serif font-bold text-slate-900 tracking-tight text-balance mb-4"
+        style="font-size: clamp(2rem, 4vw, 3rem);"
+      >
+        Every Topic Covered
+      </h2>
+      <p class="text-slate-500 max-w-xl mx-auto leading-relaxed" style="font-size: 1.0625rem;">
+        From smart home tech to wellness and style — expert coverage across
+        every corner of modern living.
+      </p>
+      <!-- Decorative divider -->
+      <div class="flex items-center justify-center gap-3 mt-6" aria-hidden="true">
+        <div class="h-px w-16 bg-gradient-to-r from-transparent to-slate-300"></div>
+        <div class="w-1.5 h-1.5 rounded-full bg-brand-accent"></div>
+        <div class="h-px w-16 bg-gradient-to-l from-transparent to-slate-300"></div>
+      </div>
+    </div>
+
+    <!-- ── Category grid ─────────────────────────────────── -->
+    <!--
+      CSS grid with named areas:
+        Desktop : [featured featured  B  C]
+                  [featured featured  D  E]
+        Tablet  : 2-col, all equal
+        Mobile  : 1-col
+    -->
+    <div class="cat-grid">
+      {featuredCategories.map((cat, i) => (
+        <a
+          href={`/category/${cat.slug}/`}
+          class:list={[
+            'cat-card group relative overflow-hidden rounded-3xl no-underline',
+            'will-change-transform focus-visible:outline-2 focus-visible:outline-brand-accent focus-visible:outline-offset-2',
+            i === 0 ? 'cat-card--featured' : 'cat-card--regular',
+          ]}
+          style={`background-color: ${cat.accentHex};`}
+          aria-label={`Explore ${cat.name} — ${cat.description}`}
+        >
+
+          <!-- [0] Background image -->
+          {cat.image && (
+            <img
+              src={cat.image}
+              alt=""
+              aria-hidden="true"
+              width={i === 0 ? 800 : 600}
+              height={i === 0 ? 600 : 400}
+              class="cat-img absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+
+          <!-- [1a] Base dark gradient — strong bottom read -->
+          <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+               style="background: linear-gradient(180deg,
+                 rgb(0 0 0 / 0.08) 0%,
+                 rgb(0 0 0 / 0.18) 35%,
+                 rgb(0 0 0 / 0.72) 75%,
+                 rgb(0 0 0 / 0.88) 100%);" />
+
+          <!-- [1b] Vignette — pulls focus inward -->
+          <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+               style="background: radial-gradient(ellipse 120% 100% at 50% 0%,
+                 transparent 45%, rgb(0 0 0 / 0.35) 100%);" />
+
+          <!-- [1c] Accent radial highlight top-left — magazine light effect -->
+          <div class="cat-highlight absolute inset-0 pointer-events-none" aria-hidden="true"
+               style={`background: radial-gradient(ellipse 60% 50% at 15% 20%,
+                 ${cat.accentHex}28 0%, transparent 70%);
+                 transition: opacity 400ms ease;`} />
+
+          <!-- [1d] Noise texture — subtle film grain -->
+          <div class="absolute inset-0 pointer-events-none opacity-[0.025]" aria-hidden="true"
+               style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%221.0%22 numOctaves=%223%22 stitchTiles=%22stitch%22/></filter><rect width=%22200%22 height=%22200%22 filter=%22url(%23n)%22/></svg>');" />
+
+          <!-- [2] Glassmorphism info panel -->
+          <div class="cat-panel absolute bottom-0 inset-x-0 m-3 sm:m-4 rounded-2xl"
+               style="background: rgb(0 0 0 / 0.42);
+                      border: 1px solid rgb(255 255 255 / 0.12);
+                      backdrop-filter: blur(14px) saturate(140%);
+                      -webkit-backdrop-filter: blur(14px) saturate(140%);
+                      box-shadow: 0 8px 32px -4px rgb(0 0 0 / 0.4),
+                                  inset 0 1px 0 rgb(255 255 255 / 0.08);"
+          >
+            <div class:list={['p-4', i === 0 ? 'sm:p-6' : '']}>
+
+              <!-- Category badge + article count row -->
+              <div class="flex items-center justify-between mb-2.5">
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                  style={`background: ${cat.accentHex}33; color: ${cat.accentHex};
+                          border: 1px solid ${cat.accentHex}44;`}
+                >
+                  {cat.name}
+                </span>
+                <!-- Article count — shown when > 0 -->
+                {(cat.articleCount ?? 0) > 0 && (
+                  <span class="text-[10px] font-medium" style="color: rgb(255 255 255 / 0.45);">
+                    {cat.articleCount} articles
+                  </span>
+                )}
+              </div>
+
+              <!-- Category name — large editorial serif -->
+              <p
+                class:list={[
+                  'font-serif font-bold text-white leading-tight text-balance mb-1.5',
+                  i === 0 ? 'text-xl sm:text-2xl lg:text-3xl' : 'text-base sm:text-lg',
+                ]}
+              >
+                {cat.name}
+              </p>
+
+              <!-- Description — visible on featured + on hover for others -->
+              <p
+                class:list={[
+                  'text-white/60 leading-snug',
+                  i === 0
+                    ? 'text-sm mb-4 line-clamp-2'
+                    : 'cat-desc text-xs mb-3 line-clamp-2',
+                ]}
+              >
+                {cat.description}
+              </p>
+
+              <!-- Explore CTA -->
+              <div class="flex items-center justify-between">
+                <span
+                  class="cat-explore-btn inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-white/80"
+                >
+                  Explore
+                  <!-- Arrow — slides right on hover via CSS -->
+                  <svg
+                    class="cat-arrow"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13" height="13" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </span>
+
+                <!-- Accent dot -->
+                <span
+                  class="cat-dot w-6 h-6 rounded-full flex items-center justify-center"
+                  style={`background: ${cat.accentHex}22; border: 1px solid ${cat.accentHex}44;`}
+                  aria-hidden="true"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                       viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="3" style={`color: ${cat.accentHex};`}
+                       aria-hidden="true">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </div>
+
+            </div>
+          </div><!-- /glass panel -->
+
+          <!-- Hover glow ring -->
+          <div class="cat-glow-ring absolute inset-0 rounded-3xl pointer-events-none" aria-hidden="true"
+               style={`box-shadow: inset 0 0 0 1.5px ${cat.accentHex}00;
+                       transition: box-shadow 350ms ease;`} />
+
+        </a>
+      ))}
+    </div><!-- /cat-grid -->
+
+    <!-- View all — visible below grid at all sizes -->
+    <div class="text-center mt-10">
+      <a
+        href="/category/reviews/"
+        class="btn-outline-dark btn-lg inline-flex items-center gap-2"
+      >
+        View All Categories
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LATEST ARTICLES — Premium editorial section
+     ─────────────────────────────────────────────────────────
+     Structure (when articles exist):
+       • Section header: eyebrow + title + subtext + Browse CTA
+       • Featured card: cinematic full-width editorial lead
+       • Supporting grid: ArticleCard × up to 5 (3-col desktop)
+     Empty state: illustrated placeholder with elegant CTA
+═══════════════════════════════════════════════════════════════ -->
+
+{latestArticles.length > 0 && (
+  <section
+    class="la-section relative py-20 lg:py-28 overflow-hidden bg-white"
+    aria-labelledby="latest-heading"
+  >
+
+    <!-- Decorative background blobs -->
+    <div class="absolute top-1/4 -right-32 w-96 h-96 rounded-full pointer-events-none"
+         aria-hidden="true"
+         style="background: radial-gradient(circle, rgb(37 99 235 / 0.04) 0%, transparent 70%);
+                filter: blur(60px);" />
+    <div class="absolute bottom-0 left-0 w-80 h-80 rounded-full pointer-events-none"
+         aria-hidden="true"
+         style="background: radial-gradient(circle, rgb(5 150 105 / 0.04) 0%, transparent 70%);
+                filter: blur(50px);" />
+
+    <div class="container relative z-10">
+
+      <!-- ── Section header ─────────────────────────────── -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 lg:mb-16">
+        <div>
+          <p class="eyebrow mb-3">Latest Stories</p>
+          <h2
+            id="latest-heading"
+            class="font-serif font-bold text-slate-900 tracking-tight text-balance mb-4"
+            style="font-size: clamp(2rem, 4vw, 3rem);"
+          >
+            Discover Fresh Ideas<br class="hidden sm:block" /> Every Week
+          </h2>
+          <p class="text-slate-500 max-w-lg leading-relaxed" style="font-size: 1.0625rem;">
+            In-depth guides, honest reviews, smart home inspiration, wellness tips,
+            and the technology that improves everyday life.
+          </p>
+        </div>
+        <a
+          href="/category/reviews/"
+          class="la-browse-btn flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full
+                 text-sm font-semibold no-underline border-2 border-slate-200 text-slate-700
+                 transition-all duration-200 hover:border-brand-accent hover:text-brand-accent
+                 hover:shadow-md self-start sm:self-auto"
+        >
+          Browse All Articles
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5" class="la-browse-arrow"
+               aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- ── Featured article — cinematic lead card ─────── -->
+      {latestArticles[0] && (
+        <article
+          class="la-lead group relative overflow-hidden rounded-3xl mb-10 no-underline block"
+          data-animate="fade-up"
+        >
+          <a
+            href={`/articles/${latestArticles[0].slug}/`}
+            class="la-lead-link block no-underline"
+            aria-label={`Read: ${latestArticles[0].data.title}`}
+          >
+            <!-- Lead image — full bleed background -->
+            <div class="la-lead-image-wrap relative overflow-hidden rounded-3xl"
+                 style="aspect-ratio: 21/9; min-height: 280px;">
+
+              {latestArticles[0].data.featuredImage ? (
+                <img
+                  src={latestArticles[0].data.featuredImage}
+                  alt={latestArticles[0].data.featuredImageAlt || latestArticles[0].data.title}
+                  width="1400"
+                  height="600"
+                  class="la-lead-img w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <!-- No-image fallback: tinted gradient using category accent -->
+                <div
+                  class="w-full h-full"
+                  style={`background: linear-gradient(135deg,
+                    ${featuredCategories[0]?.accentHex ?? '#2563EB'}22 0%,
+                    #0F172A 100%);`}
+                  aria-hidden="true"
+                />
+              )}
+
+              <!-- Multi-layer overlay: dark gradient + vignette -->
+              <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+                   style="background: linear-gradient(180deg,
+                     rgb(0 0 0 / 0.05) 0%,
+                     rgb(0 0 0 / 0.15) 40%,
+                     rgb(0 0 0 / 0.78) 75%,
+                     rgb(0 0 0 / 0.92) 100%);" />
+              <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+                   style="background: radial-gradient(ellipse 110% 100% at 50% 0%,
+                     transparent 40%, rgb(0 0 0 / 0.3) 100%);" />
+
+              <!-- Content over image — bottom-aligned editorial layout -->
+              <div class="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 lg:p-12">
+
+                <!-- Top row: category badge + reading time -->
+                <div class="flex items-center gap-3 mb-4 flex-wrap">
+                  {latestArticles[0].data.category && (
+                    <span
+                      class="la-lead-badge inline-flex items-center px-3 py-1.5 rounded-full
+                             text-xs font-bold uppercase tracking-wider text-white"
+                      style={`background: rgb(255 255 255 / 0.15);
+                              border: 1px solid rgb(255 255 255 / 0.22);
+                              backdrop-filter: blur(8px);
+                              -webkit-backdrop-filter: blur(8px);`}
+                    >
+                      {latestArticles[0].data.category.replace(/-/g, ' ')}
+                    </span>
+                  )}
+                  <span class="flex items-center gap-1.5 text-xs font-medium text-white/60">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2.5" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    {(() => {
+                      const wpm = 238;
+                      const words = (latestArticles[0].body ?? '').replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length;
+                      const mins = Math.max(1, Math.ceil(words / wpm));
+                      return `${mins} min read`;
+                    })()}
+                  </span>
+                  <time
+                    class="text-xs text-white/50"
+                    datetime={isoDate(latestArticles[0].data.publishDate)}
+                  >
+                    {formatDate(latestArticles[0].data.publishDate)}
+                  </time>
+                </div>
+
+                <!-- Headline — large editorial serif -->
+                <h3
+                  class="la-lead-title font-serif font-bold text-white leading-tight text-balance mb-4
+                         transition-colors duration-200"
+                  style="font-size: clamp(1.6rem, 4vw, 2.75rem);"
+                >
+                  {latestArticles[0].data.title}
+                </h3>
+
+                <!-- Excerpt -->
+                <p class="text-white/70 leading-relaxed mb-6 max-w-2xl line-clamp-2"
+                   style="font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);">
+                  {latestArticles[0].data.description}
+                </p>
+
+                <!-- Bottom row: author + CTA -->
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                  <!-- Author -->
+                  <div class="flex items-center gap-2.5">
+                    <span
+                      class="flex items-center justify-center w-7 h-7 rounded-full
+                             bg-white/20 text-white text-xs font-bold select-none"
+                      aria-hidden="true"
+                    >
+                      {(latestArticles[0].data.author ?? 'L').charAt(0).toUpperCase()}
+                    </span>
+                    <span class="text-sm font-medium text-white/80">
+                      {latestArticles[0].data.author ?? 'Lucky Living'}
+                    </span>
+                  </div>
+
+                  <!-- Explore button -->
+                  <span
+                    class="la-lead-cta inline-flex items-center gap-2 px-5 py-2.5 rounded-full
+                           text-sm font-semibold text-white no-underline
+                           transition-all duration-250"
+                    style="background: rgb(255 255 255 / 0.15);
+                           border: 1px solid rgb(255 255 255 / 0.25);
+                           backdrop-filter: blur(8px);
+                           -webkit-backdrop-filter: blur(8px);"
+                  >
+                    Explore Article
+                    <svg class="la-lead-arrow" xmlns="http://www.w3.org/2000/svg"
+                         width="14" height="14" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5"
+                         aria-hidden="true">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </span>
+                </div>
+
+              </div><!-- /content over image -->
+            </div>
+          </a>
+        </article>
+      )}
+
+      <!-- ── Supporting grid — ArticleCard × remaining ──── -->
+      {latestArticles.length > 1 && (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestArticles.slice(1).map((article, i) => (
+            <div data-animate="fade-up" data-delay={String((i % 3) * 100)}>
+              <ArticleCard entry={article} />
+            </div>
+          ))}
+        </div>
+      )}
+
+    </div>
+  </section>
+)}
+
+<!-- ── Empty state ─────────────────────────────────────────── -->
+{latestArticles.length === 0 && (
+  <section
+    class="relative py-20 lg:py-28 bg-white overflow-hidden"
+    aria-labelledby="latest-heading"
+  >
+    <div class="container">
+      <h2 id="latest-heading" class="sr-only">Latest Articles</h2>
+      <div class="max-w-lg mx-auto text-center py-16 px-8 rounded-3xl"
+           style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                  border: 1px solid #E2E8F0;">
+        <!-- Illustration -->
+        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center"
+             style="background: linear-gradient(135deg, #DBEAFE, #E0E7FF);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+               fill="none" stroke="#2563EB" stroke-width="1.5" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-slate-900 mb-3">
+          Fresh stories are coming soon.
+        </h3>
+        <p class="text-slate-500 leading-relaxed mb-8">
+          We're crafting expert guides and honest reviews for you.
+          Check back shortly — great content is on its way.
+        </p>
+        <a href="/" class="btn-primary inline-flex items-center gap-2">
+          Back to Home
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- ═══════════════════════════════════════════════════════════
+     FEATURED REVIEWS — Premium product showcase
+     ─────────────────────────────────────────────────────────
+     Layout:
+       Desktop : large featured card (left, ~60%) + 3 supporting
+                 ProductCards (right, ~40%) in a vertical stack
+       Tablet  : 2-col grid
+       Mobile  : single column
+     Data:
+       topProducts[0]      → bespoke featured card (inline markup)
+       topProducts.slice(1)→ reuses <ProductCard /> unchanged
+     No logic is duplicated from ProductCard.
+═══════════════════════════════════════════════════════════════ -->
+{topProducts.length > 0 && (
+  <section
+    class="pr-section relative py-20 lg:py-28 overflow-hidden"
+    aria-labelledby="products-heading"
+  >
+
+    <!-- Decorative background -->
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+         style="background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);" />
+    <div class="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+         aria-hidden="true"
+         style="background: radial-gradient(circle, rgb(217 119 6 / 0.07) 0%, transparent 70%);
+                filter: blur(64px);" />
+    <div class="absolute bottom-0 left-0 w-96 h-96 rounded-full pointer-events-none"
+         aria-hidden="true"
+         style="background: radial-gradient(circle, rgb(37 99 235 / 0.05) 0%, transparent 70%);
+                filter: blur(56px);" />
+
+    <div class="container relative z-10">
+
+      <!-- ── Section header ─────────────────────────────── -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 lg:mb-16">
+        <div>
+          <p class="eyebrow mb-3" style="color: var(--color-brand-gold);">Editor's Picks</p>
+          <h2
+            id="products-heading"
+            class="font-serif font-bold text-slate-900 tracking-tight text-balance mb-4"
+            style="font-size: clamp(2rem, 4vw, 3rem);"
+          >
+            Featured Reviews
+          </h2>
+          <p class="text-slate-500 max-w-lg leading-relaxed" style="font-size: 1.0625rem;">
+            Every review is independently researched and rigorously tested — designed
+            to help you make informed buying decisions with complete confidence.
+          </p>
+        </div>
+        <a
+          href="/category/reviews/"
+          class="pr-view-all flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full
+                 text-sm font-semibold no-underline border-2 border-slate-200 text-slate-700
+                 transition-all duration-200 hover:border-brand-accent hover:text-brand-accent
+                 hover:shadow-md self-start sm:self-auto"
+        >
+          View All Reviews
+          <svg class="pr-view-arrow" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- ── Main grid: featured (left) + supporting (right) ── -->
+      <div class="pr-grid">
+
+        <!-- ════════════════════════════════════════════════
+             FEATURED REVIEW — large bespoke card
+             Renders topProducts[0] data directly.
+             No logic duplicated from ProductCard.
+        ════════════════════════════════════════════════ -->
+        {topProducts[0] && (() => {
+          const fp = topProducts[0];
+          const fpCat = getCategoryBySlug(fp.data.category);
+          const fpFull  = fp.data.rating ? Math.floor(fp.data.rating) : 0;
+          const fpHalf  = fp.data.rating ? fp.data.rating % 1 >= 0.5 : false;
+          const fpEmpty = 5 - fpFull - (fpHalf ? 1 : 0);
+          const fpScore = !fp.data.rating ? '#64748B'
+            : fp.data.rating >= 4.5 ? '#D97706'
+            : fp.data.rating >= 4.0 ? '#059669'
+            : '#64748B';
+          const fpPros = (fp.data.pros ?? []).slice(0, 3);
+          const fpCons = (fp.data.cons ?? []).slice(0, 2);
+          return (
+            <article
+              class="pr-featured group"
+              data-animate="fade-up"
+            >
+              <!-- Image zone -->
+              <a
+                href={`/reviews/${fp.slug}/`}
+                class="pr-feat-img-wrap block relative overflow-hidden no-underline"
+                aria-label={`View review: ${fp.data.name}`}
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <!-- Category-tinted gradient wash behind product -->
+                <div class="absolute inset-0" aria-hidden="true"
+                     style={fpCat
+                       ? `background: radial-gradient(ellipse at 50% 40%, ${fpCat.accentHex}18 0%, #F1F5F9 70%);`
+                       : 'background: radial-gradient(ellipse at 50% 40%, #DBEAFE 0%, #F1F5F9 70%);'} />
+
+                {fp.data.image ? (
+                  <img
+                    src={fp.data.image}
+                    alt={fp.data.imageAlt || fp.data.name}
+                    width="600"
+                    height="450"
+                    class="pr-feat-img relative w-full h-full object-contain p-8
+                           transition-[transform,filter] duration-500"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-slate-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1" aria-hidden="true">
+                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                      <circle cx="9" cy="9" r="2"/>
+                      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                    </svg>
+                  </div>
+                )}
+
+                <!-- Soft bottom vignette for image area -->
+                <div class="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
+                     aria-hidden="true"
+                     style="background: linear-gradient(to top, #F1F5F9 0%, transparent 100%);" />
+
+                <!-- Trust badge — top-left -->
+                <div class="absolute top-4 left-4 flex flex-col gap-2">
+                  <span class="pr-trust-badge inline-flex items-center gap-1.5 px-2.5 py-1.5
+                               rounded-full text-[10px] font-bold uppercase tracking-wider
+                               text-amber-700 shadow-sm"
+                        style="background: #FEF3C7; border: 1px solid #FDE68A;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                         viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    Editor's Choice
+                  </span>
+                </div>
+
+                <!-- Rating badge — top-right -->
+                {fp.data.rating && (
+                  <div class="absolute top-4 right-4 flex flex-col items-center justify-center
+                               w-14 h-14 rounded-2xl text-white shadow-lg
+                               transition-transform duration-200 group-hover:scale-110"
+                       style={`background: ${fpScore};`}
+                       aria-hidden="true">
+                    <span class="text-xl font-bold leading-none tabular-nums">{fp.data.rating}</span>
+                    <span class="text-[9px] font-semibold uppercase tracking-wide opacity-80 mt-0.5">/5</span>
+                  </div>
+                )}
+
+                <!-- Category pill — bottom-left -->
+                {fpCat && (
+                  <span class="absolute bottom-4 left-4 badge"
+                        style={`background: ${fpCat.accentHex}1a; color: ${fpCat.accentHex};`}>
+                    {fpCat.name}
+                  </span>
+                )}
+              </a>
+
+              <!-- Content zone -->
+              <div class="pr-feat-body">
+
+                <!-- Stars + Expert Score -->
+                {fp.data.rating && (
+                  <div class="flex items-center gap-2.5 mb-4"
+                       role="img"
+                       aria-label={`Rated ${fp.data.rating} out of 5 stars`}>
+                    <div class="flex gap-0.5">
+                      {Array.from({ length: fpFull }).map(() => (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                             fill="currentColor" class="w-4 h-4 text-amber-400" aria-hidden="true">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      ))}
+                      {fpHalf && (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                             fill="currentColor" class="w-4 h-4 text-amber-400 opacity-50"
+                             aria-hidden="true">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      )}
+                      {Array.from({ length: fpEmpty }).map(() => (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="1.5"
+                             class="w-4 h-4 text-slate-300" aria-hidden="true">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      ))}
+                    </div>
+                    <span class="text-sm font-bold tabular-nums" style={`color: ${fpScore};`}>
+                      {fp.data.rating}
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium">Expert Score</span>
+                  </div>
+                )}
+
+                <!-- Headline -->
+                <a href={`/reviews/${fp.slug}/`} class="no-underline block mb-3">
+                  <h3 class="pr-feat-title font-serif font-bold text-slate-900 leading-snug
+                             text-balance transition-colors duration-150
+                             group-hover:text-brand-accent"
+                      style="font-size: clamp(1.3rem, 2.5vw, 1.75rem);">
+                    {fp.data.name}
+                  </h3>
+                </a>
+
+                <!-- Summary -->
+                {fp.data.description && (
+                  <p class="text-slate-500 leading-relaxed mb-5 line-clamp-3"
+                     style="font-size: 0.9375rem;">
+                    {fp.data.description}
+                  </p>
+                )}
+
+                <!-- Pros + Cons mini cards -->
+                {(fpPros.length > 0 || fpCons.length > 0) && (
+                  <div class="grid grid-cols-2 gap-3 mb-6">
+                    {fpPros.length > 0 && (
+                      <div class="rounded-xl p-3.5"
+                           style="background: #F0FDF4; border: 1px solid #BBF7D0;">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2.5">
+                          Pros
+                        </p>
+                        <ul class="space-y-1.5">
+                          {fpPros.map((pro) => (
+                            <li class="flex items-start gap-1.5 text-xs text-emerald-800 leading-snug">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11"
+                                   viewBox="0 0 24 24" fill="none" stroke="#059669"
+                                   stroke-width="3" class="flex-shrink-0 mt-px" aria-hidden="true">
+                                <path d="M20 6 9 17l-5-5"/>
+                              </svg>
+                              <span class="line-clamp-1">{pro}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {fpCons.length > 0 && (
+                      <div class="rounded-xl p-3.5"
+                           style="background: #FFF1F2; border: 1px solid #FECDD3;">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-2.5">
+                          Cons
+                        </p>
+                        <ul class="space-y-1.5">
+                          {fpCons.map((con) => (
+                            <li class="flex items-start gap-1.5 text-xs text-rose-800 leading-snug">
+                              <span class="text-rose-400 flex-shrink-0 font-bold mt-[-1px]">&bull;</span>
+                              <span class="line-clamp-1">{con}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <!-- Price + CTA -->
+                <div class="pt-5 border-t border-slate-100 space-y-3">
+                  {fp.data.pricePlaceholder && (
+                    <div class="flex items-baseline justify-between">
+                      <div>
+                        <p class="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-0.5">
+                          Price
+                        </p>
+                        <p class="text-2xl font-bold text-slate-900 tabular-nums leading-none">
+                          {fp.data.pricePlaceholder}
+                        </p>
+                      </div>
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full
+                                   text-[10px] font-semibold uppercase tracking-wide
+                                   text-emerald-700 bg-emerald-50 border border-emerald-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="3" aria-hidden="true">
+                          <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                        Best Price
+                      </span>
+                    </div>
+                  )}
+
+                  <a
+                    href={fp.data.affiliateUrl}
+                    target="_blank"
+                    rel="nofollow sponsored noopener noreferrer"
+                    class="pr-cta-btn flex items-center justify-center gap-2.5
+                           w-full py-4 rounded-2xl font-semibold text-white no-underline
+                           transition-all duration-250"
+                    style="background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+                           box-shadow: 0 4px 16px -2px rgb(217 119 6 / 0.4);"
+                    aria-label={`${fp.data.affiliateLabel ?? 'Check Price'} for ${fp.data.name} — opens retailer site`}
+                  >
+                    {fp.data.affiliateLabel ?? 'See Today\'s Price'}
+                    <svg class="pr-cta-arrow" xmlns="http://www.w3.org/2000/svg"
+                         width="16" height="16" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5"
+                         aria-hidden="true">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </a>
+
+                  <p class="text-center text-[10px] text-slate-400">
+                    Opens on retailer site &middot; We may earn a commission
+                  </p>
+                </div>
+
+              </div>
+            </article>
+          );
+        })()}
+
+        <!-- ════════════════════════════════════════════════
+             SUPPORTING REVIEWS — reuse ProductCard unchanged
+        ════════════════════════════════════════════════ -->
+        {topProducts.length > 1 && (
+          <div class="pr-supporting">
+            {topProducts.slice(1).map((product, i) => (
+              <div data-animate="fade-up" data-delay={String(i * 100)}>
+                <ProductCard entry={product} />
+              </div>
+            ))}
+          </div>
+        )}
+
+      </div><!-- /pr-grid -->
+
+      <!-- ── Trust banner ────────────────────────────────── -->
+      <div class="mt-12 pt-8 border-t border-slate-200">
+        <ul class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
+            role="list">
+          {[
+            { icon: '✓', label: 'Expert Tested' },
+            { icon: '✓', label: 'Independent Reviews' },
+            { icon: '✓', label: 'Updated Regularly' },
+            { icon: '✓', label: 'Affiliate Supported' },
+          ].map((item) => (
+            <li class="flex items-center gap-2 text-sm text-slate-500">
+              <span class="flex items-center justify-center w-5 h-5 rounded-full
+                           text-emerald-600 font-bold text-xs flex-shrink-0"
+                    style="background: #D1FAE5;"
+                    aria-hidden="true">
+                {item.icon}
+              </span>
+              {item.label}
+            </li>
+          ))}
+        </ul>
+
+        <!-- Affiliate disclosure -->
+        <p class="text-xs text-slate-400 text-center mt-4 max-w-lg mx-auto leading-relaxed">
+          {SITE.affiliate.disclosureShort}{' '}
+          <a href={SITE.affiliate.disclosureUrl}
+             class="underline underline-offset-2 hover:text-slate-600 transition-colors">
+            Learn more
+          </a>.
+        </p>
+      </div>
+
+    </div>
+  </section>
+)}
+
+<!-- EDITOR'S PICKS -->
+{featuredArticles.length > 0 && (
+  <section class="section bg-white" aria-labelledby="editors-heading">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow mb-1.5">Handpicked</p>
+          <h2 id="editors-heading" class="section-title">Editor's Picks</h2>
+        </div>
+        <a href="/category/reviews/" class="section-link hidden sm:inline">View all &rarr;</a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {featuredArticles.map((article) => <ArticleCard entry={article} />)}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- NEWSLETTER -->
+<div id="newsletter">
+  <NewsletterSection />
+</div>
+
+</BaseLayout>
+
+<style>
+  .hero-section {
+    background: linear-gradient(145deg, #060D1A 0%, #0C1628 45%, #0A1930 100%);
+  }
+  .hero-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -4px rgb(37 99 235 / 0.5);
+  }
+  .hero-newsletter-cta:hover {
+    background: rgb(37 99 235 / 0.4) !important;
+    border-color: rgb(37 99 235 / 0.6) !important;
+    color: #BFDBFE !important;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 768px) {
+    .hero-zoom { animation-duration: 30s; }
+    .hero-float, .hero-float-alt { animation: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-zoom, .hero-float, .hero-float-alt,
+    .hero-ray, .hero-copy-in, .hero-panel-in {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     CATEGORIES — scoped styles
+     All .cat-* classes are local to this page.
+  ═══════════════════════════════════════════════ */
+
+  /* ── Grid layout ──────────────────────────────── */
+  .cat-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  /* Tablet: 2 cols */
+  @media (min-width: 640px) {
+    .cat-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Desktop: 4 cols with featured spanning 2×2 */
+  @media (min-width: 1024px) {
+    .cat-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto;
+    }
+    .cat-card--featured {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  /* ── Card sizing ──────────────────────────────── */
+  .cat-card--regular {
+    min-height: 220px;
+  }
+
+  .cat-card--featured {
+    min-height: 300px;
+  }
+
+  @media (min-width: 640px) {
+    .cat-card--regular  { min-height: 240px; }
+    .cat-card--featured { min-height: 380px; }
+  }
+
+  @media (min-width: 1024px) {
+    .cat-card--regular  { min-height: 220px; }
+    .cat-card--featured { min-height: 480px; }
+  }
+
+  /* ── Image zoom on hover ──────────────────────── */
+  .cat-img {
+    transform: scale(1.0);
+    transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1),
+                filter 400ms ease;
+    filter: brightness(0.85) saturate(1.1);
+  }
+
+  .cat-card:hover .cat-img {
+    transform: scale(1.06);
+    filter: brightness(0.95) saturate(1.15);
+  }
+
+  /* ── Panel lift on hover ──────────────────────── */
+  .cat-card {
+    transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1),
+                box-shadow 320ms ease;
+    box-shadow: 0 4px 16px -4px rgb(0 0 0 / 0.2);
+  }
+
+  .cat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 48px -8px rgb(0 0 0 / 0.3);
+  }
+
+  .cat-panel {
+    transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  .cat-card:hover .cat-panel {
+    transform: translateY(-3px);
+  }
+
+  /* ── Arrow slides right on hover ─────────────── */
+  .cat-arrow {
+    transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .cat-card:hover .cat-arrow {
+    transform: translateX(5px);
+  }
+
+  .cat-explore-btn {
+    transition: color 200ms ease;
+  }
+
+  .cat-card:hover .cat-explore-btn {
+    color: white;
+  }
+
+  /* ── Accent dot pulse on featured card ────────── */
+  .cat-card--featured .cat-dot {
+    animation: cat-dot-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes cat-dot-pulse {
+    0%, 100% { transform: scale(1);   opacity: 1; }
+    50%       { transform: scale(1.2); opacity: 0.7; }
+  }
+
+  /* ── Glow ring on hover ───────────────────────── */
+  .cat-card:hover .cat-glow-ring {
+    box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.18) !important;
+  }
+
+  /* ── Highlight brightens on hover ────────────── */
+  .cat-card:hover .cat-highlight {
+    opacity: 1.4;
+  }
+
+  /* ── Description: hidden on small cards at rest,
+        always visible on featured ─────────────── */
+  .cat-desc {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-bottom: 0;
+    transition: max-height 300ms ease, opacity 300ms ease, margin-bottom 300ms ease;
+  }
+
+  .cat-card:hover .cat-desc {
+    max-height: 3rem;
+    opacity: 1;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Stagger fade-up via data-animate ─────────── */
+  /* Uses the existing scroll-reveal system in animations.ts */
+
+  /* ── Featured card: subtle ambient pulse glow ─── */
+  .cat-card--featured::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.5rem;
+    pointer-events: none;
+    box-shadow: inset 0 0 60px -20px rgb(255 255 255 / 0);
+    transition: box-shadow 400ms ease;
+  }
+
+  .cat-card--featured:hover::after {
+    box-shadow: inset 0 0 60px -20px rgb(255 255 255 / 0.06);
+  }
+
+  /* ── Respect reduced motion ───────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .cat-img,
+    .cat-card,
+    .cat-panel,
+    .cat-arrow,
+    .cat-desc {
+      transition: none !important;
+      animation: none !important;
+    }
+    .cat-card:hover {
+      transform: none;
+    }
+    .cat-desc {
+      max-height: none;
+      opacity: 1;
+    }
+  }
+</style>

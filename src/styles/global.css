@@ -1,0 +1,946 @@
+/* =============================================================
+   Lucky Living — Design System
+   Tailwind 4 · global.css
+   ============================================================= */
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ── Design tokens ───────────────────────────────────────────
+   All custom values live here. Components reference these vars.
+   ─────────────────────────────────────────────────────────── */
+@theme {
+
+  /* Brand palette */
+  --color-brand-primary:      #0F172A;
+  --color-brand-accent:       #2563EB;
+  --color-brand-accent-dark:  #1D4ED8;
+  --color-brand-gold:         #D97706;
+  --color-brand-success:      #059669;
+  --color-brand-danger:       #DC2626;
+
+  /* Category palette */
+  --color-category-smart-home:  #2563EB;
+  --color-category-tech-life:   #7C3AED;
+  --color-category-home-design: #D97706;
+  --color-category-wellness:    #059669;
+  --color-category-style:       #DB2777;
+  --color-category-reviews:     #DC2626;
+  --color-category-deals:       #EA580C;
+
+  /* Typefaces */
+  --font-sans:  Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-mono:  "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  /* Shadows — card hierarchy */
+  --shadow-card:    0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card-lg: 0 10px 24px -4px rgb(0 0 0 / 0.12), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+  --shadow-card-xl: 0 24px 40px -8px rgb(0 0 0 / 0.16), 0 8px 16px -8px rgb(0 0 0 / 0.08);
+
+  /* Easing curves */
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:     cubic-bezier(0, 0, 0.2, 1);
+
+  /* Timing */
+  --duration-fast:   150ms;
+  --duration-base:   250ms;
+  --duration-slow:   400ms;
+  --duration-slower: 600ms;
+}
+
+/* ── Base layer ──────────────────────────────────────────────
+   Resets, document defaults, global typography polish.
+   ─────────────────────────────────────────────────────────── */
+@layer base {
+
+  /* Document */
+  html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-size: 16px;
+    /* Subpixel rendering on macOS */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.625;
+    color: oklch(15% 0.02 255);   /* ~slate-900 */
+    background-color: #fff;
+    /* Prevent layout shift from scrollbar appearing */
+    overflow-x: hidden;
+  }
+
+  /* Headings — serif by default for brand personality */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    /* Optical balance for multi-line headings */
+    text-wrap: balance;
+  }
+
+  /* Body copy */
+  p {
+    line-height: 1.75;
+  }
+
+  /* Links — understated by default, styled where needed */
+  a {
+    color: inherit;
+    text-underline-offset: 3px;
+    transition: color var(--duration-fast) var(--ease-smooth),
+                opacity var(--duration-fast) var(--ease-smooth);
+  }
+
+  /* Images never overflow, preserve aspect ratio */
+  img, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Remove default list chrome */
+  ul, ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Buttons inherit font */
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  /* Text selection — on-brand highlight */
+  ::selection {
+    background-color: #DBEAFE;  /* blue-100 */
+    color: #1E3A5F;
+  }
+
+  /* Focus ring — accessible, on-brand */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Remove default focus ring for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Horizontal rule */
+  hr {
+    border: none;
+    border-top: 1px solid #E2E8F0;
+    margin-block: 2.5rem;
+  }
+
+  /* Code */
+  code:not(pre code) {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    padding: 0.15em 0.4em;
+    background: #F1F5F9;
+    border-radius: 4px;
+    color: #0F172A;
+  }
+
+  /* Smooth image rendering */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  /* Respect user motion preference — disable all animations */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ── Animation keyframes ─────────────────────────────────────
+   Pure CSS. No libraries. Referenced via animation utilities.
+   ─────────────────────────────────────────────────────────── */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ── Hero-specific keyframes ─────────────────────────────────
+   Used exclusively by the homepage hero section.
+   Scoped class names (.hero-*) prevent bleed into other pages.
+   ─────────────────────────────────────────────────────────── */
+
+/* Background image: slow Ken Burns zoom in over 20s */
+@keyframes hero-zoom {
+  from { transform: scale(1.00); }
+  to   { transform: scale(1.08); }
+}
+
+/* Decorative blobs: gentle infinite float */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0px)   translateX(0px);   }
+  33%       { transform: translateY(-18px) translateX(8px);   }
+  66%       { transform: translateY(-8px)  translateX(-12px); }
+}
+
+/* Slower float variant for second blob (offset phase) */
+@keyframes hero-float-alt {
+  0%, 100% { transform: translateY(0px)   translateX(0px);   }
+  40%       { transform: translateY(14px)  translateX(-10px); }
+  70%       { transform: translateY(-10px) translateX(14px);  }
+}
+
+/* Glass panel entrance: slides up from 16px below */
+@keyframes hero-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Copy stagger: each child fades up in sequence */
+@keyframes hero-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle horizontal drift for the light-ray overlay */
+@keyframes hero-ray-drift {
+  0%   { transform: translateX(-8%) skewX(-6deg); opacity: 0.04; }
+  50%  { transform: translateX(4%)  skewX(-6deg); opacity: 0.07; }
+  100% { transform: translateX(-8%) skewX(-6deg); opacity: 0.04; }
+}
+
+/* ── Component layer ─────────────────────────────────────────
+   Semantic, reusable patterns. Single-responsibility.
+   Every class used across .astro components is defined here.
+   ─────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Layout ─────────────────────────────────────────────── */
+
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px)  { .container { padding-inline: 1.5rem; } }
+  @media (min-width: 1024px) { .container { padding-inline: 2.5rem; } }
+  @media (min-width: 1280px) { .container { padding-inline: 3rem;   } }
+
+  .section {
+    padding-block: 4rem;
+  }
+
+  @media (min-width: 1024px) { .section { padding-block: 5rem; } }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 1024px) { .section-header { margin-bottom: 2.5rem; } }
+
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 3vw, 1.875rem);
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.015em;
+  }
+
+  .section-link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-brand-accent);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-smooth),
+                gap var(--duration-fast) var(--ease-smooth);
+  }
+
+  .section-link:hover {
+    color: var(--color-brand-accent-dark);
+  }
+
+  /* ── Skip link (accessibility) ──────────────────────────── */
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    z-index: 999;
+    padding: 0.5rem 1.25rem;
+    background: var(--color-brand-accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    text-decoration: none;
+    transition: top var(--duration-fast) var(--ease-out);
+  }
+
+  .skip-link:focus {
+    top: 0;
+    outline: none;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+
+  /* Base — shared by all button variants */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    transition:
+      background-color var(--duration-fast) var(--ease-smooth),
+      border-color     var(--duration-fast) var(--ease-smooth),
+      color            var(--duration-fast) var(--ease-smooth),
+      box-shadow       var(--duration-base) var(--ease-smooth),
+      transform        var(--duration-fast) var(--ease-smooth);
+    user-select: none;
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  /* Primary — blue fill */
+  .btn-primary {
+    background-color: var(--color-brand-accent);
+    border-color:     var(--color-brand-accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-brand-accent-dark);
+    border-color:     var(--color-brand-accent-dark);
+    box-shadow: var(--shadow-card-lg);
+    color: #fff;
+  }
+
+  /* Outline — for dark backgrounds */
+  .btn-outline {
+    background-color: transparent;
+    border-color: #fff;
+    color: #fff;
+  }
+
+  .btn-outline:hover {
+    background-color: #fff;
+    color: var(--color-brand-primary);
+  }
+
+  /* Outline dark — for light backgrounds */
+  .btn-outline-dark {
+    background-color: transparent;
+    border-color: var(--color-brand-accent);
+    color: var(--color-brand-accent);
+  }
+
+  .btn-outline-dark:hover {
+    background-color: var(--color-brand-accent);
+    color: #fff;
+  }
+
+  /* Ghost — minimal, for nav contexts */
+  .btn-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    color: #475569;
+  }
+
+  .btn-ghost:hover {
+    background-color: #F1F5F9;
+    color: #0F172A;
+  }
+
+  /* Size modifiers */
+  .btn-sm { padding: 0.5rem 1rem;   font-size: 0.75rem; }
+  .btn-lg { padding: 1rem 2.5rem;   font-size: 1rem;    }
+
+  /* Full width */
+  .btn-block { width: 100%; }
+
+  /* ── Badges ──────────────────────────────────────────────── */
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+
+  /* Variants */
+  .badge-blue    { background: #DBEAFE; color: #1D4ED8; }
+  .badge-gold    { background: #FEF3C7; color: #D97706; }
+  .badge-green   { background: #D1FAE5; color: #065F46; }
+  .badge-red     { background: #FEE2E2; color: #991B1B; }
+  .badge-gray    { background: #F1F5F9; color: #475569; }
+  .badge-primary { background: #DBEAFE; color: #1D4ED8; } /* alias */
+
+  /* ── Card ────────────────────────────────────────────────── */
+
+  .card {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 1rem;          /* rounded-2xl */
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition:
+      box-shadow   var(--duration-base) var(--ease-smooth),
+      transform    var(--duration-base) var(--ease-smooth),
+      border-color var(--duration-base) var(--ease-smooth);
+  }
+
+ .card:hover {
+  transform:
+    translateY(-8px)
+    scale(1.015);
+
+  box-shadow:
+    0 25px 50px -12px rgb(0 0 0 / .15);
+}
+
+  /* ── Form inputs ─────────────────────────────────────────── */
+
+  .input {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    color: #0F172A;
+    background: #fff;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 0.75rem;
+    transition: border-color var(--duration-fast) var(--ease-smooth),
+                box-shadow   var(--duration-fast) var(--ease-smooth);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-brand-accent);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.12);
+  }
+
+  .input::placeholder {
+    color: #94A3B8;
+  }
+
+  /* Dark variant — for newsletter on dark backgrounds */
+  .input-dark {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9375rem;
+    font-family: var(--font-sans);
+    color: #fff;
+    background: #1E293B;
+    border: 1.5px solid #334155;
+    border-radius: 0.75rem;
+    transition: border-color var(--duration-fast) var(--ease-smooth),
+                box-shadow   var(--duration-fast) var(--ease-smooth);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .input-dark:focus {
+    outline: none;
+    border-color: var(--color-brand-accent);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.2);
+  }
+
+  .input-dark::placeholder {
+    color: #64748B;
+  }
+
+  /* ── Gradient utilities ──────────────────────────────────── */
+
+  /* Hero section background */
+  .gradient-hero {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F2240 100%);
+  }
+
+  /* Dark overlay — applied absolutely over images */
+  .gradient-dark-bottom {
+    background: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.72) 0%,
+      rgb(0 0 0 / 0.24) 50%,
+      transparent       100%
+    );
+  }
+
+  /* ── Skeleton loader ─────────────────────────────────────── */
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #F1F5F9 25%,
+      #E2E8F0 50%,
+      #F1F5F9 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s var(--ease-smooth) infinite;
+    border-radius: 0.75rem;
+  }
+}
+
+/* ── Utility layer ───────────────────────────────────────────
+   Single-purpose helpers that augment Tailwind.
+   ─────────────────────────────────────────────────────────── */
+@layer utilities {
+
+  /* ── Accessibility ──────────────────────────────────────── */
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* ── Typography ─────────────────────────────────────────── */
+
+  /* Optical text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Pretty wrapping for body copy */
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Link style: underlined with offset */
+  .link {
+    color: var(--color-brand-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .link:hover {
+    color: var(--color-brand-accent-dark);
+  }
+
+  /* Eyebrow text — used above headings */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-brand-accent);
+  }
+
+  /* ── Line clamp ─────────────────────────────────────────── */
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Animations ─────────────────────────────────────────── */
+
+  /* Fade up — primary entrance animation for sections/cards */
+  .animate-fade-up {
+    animation: fade-up var(--duration-slow) var(--ease-out) both;
+  }
+
+  /* Fade in — for overlays, images */
+  .animate-fade-in {
+    animation: fade-in var(--duration-base) var(--ease-smooth) both;
+  }
+
+  /* Slide in from left */
+  .animate-slide-in-left {
+    animation: slide-in-left var(--duration-slow) var(--ease-out) both;
+  }
+
+  /* Slide in from right */
+  .animate-slide-in-right {
+    animation: slide-in-right var(--duration-slow) var(--ease-out) both;
+  }
+
+  /* Scale in — for modals, dropdowns */
+  .animate-scale-in {
+    animation: scale-in var(--duration-base) var(--ease-spring) both;
+  }
+
+  /* Staggered delay helpers — add to sibling elements */
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-400 { animation-delay: 400ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+
+  /* ── Hover interactions ──────────────────────────────────── */
+
+  /* Lift on hover — for cards and interactive blocks */
+  .hover-lift {
+    transition: transform var(--duration-base) var(--ease-smooth),
+                box-shadow var(--duration-base) var(--ease-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-lg);
+  }
+
+  /* Image zoom — apply to the <img>, parent must have overflow-hidden */
+  .hover-zoom {
+    transition: transform var(--duration-slow) var(--ease-smooth);
+  }
+
+  .hover-zoom:hover {
+    transform: scale(1.05);
+  }
+
+  /* For wrapping element — apply to group, img gets .group-hover-zoom */
+  .group:hover .group-zoom {
+    transform: scale(1.04);
+    transition: transform var(--duration-slow) var(--ease-smooth);
+  }
+
+  /* Dim on hover — for overlay elements */
+  .hover-dim:hover {
+    opacity: 0.85;
+    transition: opacity var(--duration-fast) var(--ease-smooth);
+  }
+
+  /* ── Visual polish ──────────────────────────────────────── */
+
+  /* Crisp text on coloured backgrounds */
+  .text-crisp {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Subtle inset border (non-layout, no gap) */
+  .ring-inset-border {
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
+  }
+
+  /* Frosted glass — for overlapping UI */
+  .glass {
+    background: rgb(255 255 255 / 0.8);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  /* Divider line */
+  .divider {
+    border: none;
+    border-top: 1px solid #E2E8F0;
+    margin-block: 2rem;
+  }
+  @keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-flow 12s ease infinite;
+}
+.nav-glass {
+  background:
+    rgb(255 255 255 / 0.75);
+
+  backdrop-filter:
+    blur(16px);
+
+  border-bottom:
+    1px solid rgb(226 232 240 / .8);
+}
+.article-image {
+  overflow:hidden;
+}
+
+.article-image img {
+  transition:
+    transform .6s ease;
+}
+
+
+.article-image:hover img {
+  transform:
+    scale(1.08);
+}
+
+  /* ── Scroll-reveal animations ───────────────────────────────
+   Driven by data-animate + data-visible attributes.
+   Set by src/scripts/animations.ts via IntersectionObserver.
+
+   Pattern:
+     [data-animations-ready] [data-animate]        = initial hidden state
+     [data-animations-ready] [data-animate][data-visible] = revealed state
+
+   The `data-animations-ready` gate on <html> means these rules only
+   activate after animations.ts has run. If JS is disabled, elements
+   are never hidden (progressive enhancement, no FOUC).
+   ─────────────────────────────────────────────────────────── */
+
+  /* ── Initial states (hidden, pre-reveal) ─────────────────── */
+
+  [data-animations-ready] [data-animate="fade-up"] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity  600ms cubic-bezier(0, 0, 0.2, 1),
+      transform 600ms cubic-bezier(0, 0, 0.2, 1);
+    /* Keep the element out of layout flow but still occupying space */
+    will-change: opacity, transform;
+  }
+
+  [data-animations-ready] [data-animate="fade"] {
+    opacity: 0;
+    transition: opacity 550ms cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity;
+  }
+
+  [data-animations-ready] [data-animate="slide"] {
+    opacity: 0;
+    transform: translateX(-28px);
+    transition:
+      opacity  580ms cubic-bezier(0, 0, 0.2, 1),
+      transform 580ms cubic-bezier(0, 0, 0.2, 1);
+    will-change: opacity, transform;
+  }
+
+  /* ── Revealed state (data-visible present) ───────────────── */
+
+  [data-animate][data-visible] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ── Reduced motion override ─────────────────────────────── */
+  /* Belt-and-suspenders: even if JS adds data-animations-ready,
+     the transition itself is removed for reduced-motion users.   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-animate] {
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+
+  /* ── Hero animation utility classes ────────────────────────
+     Applied directly in index.astro hero section markup.
+     Named with .hero- prefix — no risk of collision.
+     ────────────────────────────────────────────────────────── */
+
+  /* Background image Ken Burns zoom — 20s, holds at end */
+  .hero-zoom {
+    animation: hero-zoom 20s var(--ease-smooth) forwards;
+    transform-origin: center center;
+  }
+
+  /* Floating blob — infinite, no reduced-motion override needed
+     (purely decorative, already filtered by @media below)       */
+  .hero-float {
+    animation: hero-float 9s ease-in-out infinite;
+  }
+
+  .hero-float-alt {
+    animation: hero-float-alt 12s ease-in-out infinite;
+  }
+
+  /* Glass panel slides in after 400ms delay */
+  .hero-panel-in {
+    animation: hero-panel-in 700ms cubic-bezier(0, 0, 0.2, 1) 400ms both;
+  }
+
+  /* Copy stagger — base class; delay set via inline style */
+  .hero-copy-in {
+    animation: hero-copy-in 600ms cubic-bezier(0, 0, 0.2, 1) both;
+  }
+
+  /* Light ray drift */
+  .hero-ray {
+    animation: hero-ray-drift 14s ease-in-out infinite;
+  }
+
+  /* ── Prose (article body) ───────────────────────────────── */
+  /*
+     Tailwind Typography plugin styles `.prose` automatically.
+     These overrides layer on top for Lucky Living's brand voice.
+  */
+
+  .prose :where(h2) {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
+  }
+
+  .prose :where(h3) {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+
+  .prose :where(a) {
+    color: var(--color-brand-accent);
+    text-decoration-color: rgb(37 99 235 / 0.35);
+    transition: color var(--duration-fast) var(--ease-smooth),
+                text-decoration-color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .prose :where(a:hover) {
+    color: var(--color-brand-accent-dark);
+    text-decoration-color: var(--color-brand-accent-dark);
+  }
+
+  .prose :where(blockquote) {
+    border-left-color: var(--color-brand-accent);
+    font-style: normal;
+    background: #F8FAFC;
+    padding: 1rem 1.5rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+
+  .prose :where(blockquote p:first-of-type::before) {
+    content: none;
+  }
+
+  .prose :where(blockquote p:last-of-type::after) {
+    content: none;
+  }
+
+  .prose :where(code:not(pre code)) {
+    font-size: 0.875em;
+    padding: 0.2em 0.45em;
+    background: #F1F5F9;
+    border-radius: 4px;
+    color: #0F172A;
+    font-weight: 500;
+  }
+
+  /* Prettier image captions */
+  .prose :where(figcaption) {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #94A3B8;
+    margin-top: 0.75rem;
+  }
+}

@@ -1,0 +1,79 @@
+---
+import BaseLayout        from '@layouts/BaseLayout.astro';
+import { SITE }          from '@data/site';
+import { buildCanonical }from '@utils/seo';
+---
+
+<BaseLayout
+  title="Affiliate Disclosure"
+  description={`${SITE.name}'s affiliate disclosure and advertising policy.`}
+  canonical={buildCanonical('/affiliate-disclosure/')}
+>
+  <div class="container py-16 lg:py-24 max-w-prose mx-auto">
+
+    <h1 class="font-serif text-4xl font-bold text-slate-900 mb-4">
+      Affiliate Disclosure
+    </h1>
+    <p class="text-sm text-slate-400 mb-10">Last updated: {new Date().getFullYear()}</p>
+
+    <div class="prose prose-lg prose-slate">
+
+      <p>
+        Lucky Living (<strong>luckyliving.com</strong>) is a participant in affiliate
+        advertising programs designed to provide a means for us to earn fees by linking
+        to affiliated sites.
+      </p>
+
+      <h2>Amazon Associates</h2>
+      <p>
+        Lucky Living is a participant in the Amazon Services LLC Associates Program, an
+        affiliate advertising program designed to provide a means for sites to earn
+        advertising fees by advertising and linking to Amazon.com.
+      </p>
+      <p>
+        As an Amazon Associate, we earn from qualifying purchases. This means when you
+        click a link to Amazon on our site and make a purchase, we may receive a small
+        commission at <strong>no additional cost to you</strong>.
+      </p>
+
+      <h2>Other Affiliate Programs</h2>
+      <p>
+        In addition to Amazon, Lucky Living may participate in other affiliate programs.
+        Any such relationships are disclosed through:
+      </p>
+      <ul>
+        <li>An affiliate disclosure notice at the top of relevant pages</li>
+        <li>Affiliate links marked with appropriate disclosures</li>
+      </ul>
+
+      <h2>Our Editorial Independence</h2>
+      <p>
+        Affiliate relationships <strong>never influence our editorial opinions</strong>.
+        Products are selected for review based on their merit, relevance to our readers,
+        and our genuine belief that they provide value. We do not accept payment in
+        exchange for positive reviews.
+      </p>
+
+      <h2>How to Identify Affiliate Links</h2>
+      <p>
+        Affiliate links on Lucky Living are marked with an external link icon (↗) and
+        open in a new tab. These links include the appropriate tracking parameters
+        required by affiliate programs.
+      </p>
+
+      <h2>FTC Compliance</h2>
+      <p>
+        This disclosure is provided in accordance with the Federal Trade Commission's
+        guidelines on endorsements and testimonials (16 CFR Part 255) and the FTC's
+        guidelines concerning the use of endorsements and testimonials in advertising.
+      </p>
+
+      <h2>Questions</h2>
+      <p>
+        If you have any questions about our affiliate relationships, please{' '}
+        <a href="/contact/">contact us</a>.
+      </p>
+
+    </div>
+  </div>
+</BaseLayout>

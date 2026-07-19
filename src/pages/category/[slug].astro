@@ -1,0 +1,143 @@
+---
+/**
+ * category/[slug].astro — Category listing pages
+ * One page per category. Shows all articles + products in that category.
+ */
+import BaseLayout          from '@layouts/BaseLayout.astro';
+import ArticleCard         from '@components/ArticleCard.astro';
+import ProductCard         from '@components/ProductCard.astro';
+import NewsletterSection   from '@components/NewsletterSection.astro';
+import { CATEGORIES, getCategoryBySlug } from '@data/categories';
+import { buildCanonical }  from '@utils/seo';
+import { getCollection }   from 'astro:content';
+
+export async function getStaticPaths() {
+  return CATEGORIES.map((cat) => ({
+    params: { slug: cat.slug },
+    props:  { slug: cat.slug },
+  }));
+}
+
+const { slug } = Astro.props;
+const category = getCategoryBySlug(slug)!;
+
+// Fetch matching content
+const allArticles = await getCollection(
+  'articles',
+  (e) => !e.data.draft && e.data.category === slug
+);
+const allProducts = await getCollection(
+  'products',
+  (e) => !e.data.draft && e.data.category === slug
+);
+
+// Sort newest first
+const articles = allArticles.sort(
+  (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
+);
+const products = allProducts.sort(
+  (a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0)
+);
+
+const canonical = buildCanonical(`/category/${slug}/`);
+const totalItems = articles.length + products.length;
+---
+
+<BaseLayout
+  title={category.seoTitle}
+  description={category.seoDescription}
+  keywords={category.keywords.split(', ')}
+  canonical={canonical}
+>
+
+  <!-- ── Category hero ──────────────────────────────────── -->
+  <section
+    class="relative py-16 lg:py-24 overflow-hidden text-white"
+    style={`background-color: ${category.accentHex};`}
+    aria-labelledby="category-heading"
+  >
+    {category.image && (
+      <img
+        src={category.image}
+        alt=""
+        aria-hidden="true"
+        class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
+        loading="eager"
+      />
+    )}
+    <div class="absolute inset-0 gradient-dark-bottom opacity-50" />
+
+    <div class="container relative z-10">
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex gap-2 text-sm text-white/60">
+          <li><a href="/" class="hover:text-white transition-colors">Home</a></li>
+          <li aria-hidden="true" class="text-white/40">/</li>
+          <li class="text-white font-medium" aria-current="page">{category.name}</li>
+        </ol>
+      </nav>
+
+      <h1 id="category-heading" class="font-serif text-4xl lg:text-5xl font-bold mb-4">
+        {category.name}
+      </h1>
+      <p class="text-lg text-white/80 max-w-2xl leading-relaxed">
+        {category.description}
+      </p>
+      {totalItems > 0 && (
+        <p class="mt-4 text-sm text-white/50">
+          {totalItems} {totalItems === 1 ? 'item' : 'items'}
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- ── Articles ────────────────────────────────────────── -->
+  {articles.length > 0 && (
+    <section class="section bg-white" aria-labelledby="articles-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="articles-heading" class="section-title">Articles</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {articles.map((article) => (
+            <ArticleCard entry={article} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ── Products ────────────────────────────────────────── -->
+  {products.length > 0 && (
+    <section class="section bg-slate-50" aria-labelledby="products-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="products-heading" class="section-title">Product Reviews</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard entry={product} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ── Empty state ────────────────────────────────────── -->
+  {totalItems === 0 && (
+    <section class="section bg-white">
+      <div class="container text-center py-20">
+        <p class="text-4xl mb-4">✍️</p>
+        <h2 class="font-serif text-2xl font-bold text-slate-900 mb-3">
+          Content coming soon
+        </h2>
+        <p class="text-slate-500 mb-8">
+          We're working on {category.name} content. Check back soon!
+        </p>
+        <a href="/" class="btn-primary">Back to Homepage</a>
+      </div>
+    </section>
+  )}
+
+  <NewsletterSection />
+
+</BaseLayout>

@@ -1,0 +1,92 @@
+---
+import BaseLayout        from '@layouts/BaseLayout.astro';
+import { SITE }          from '@data/site';
+import { buildCanonical }from '@utils/seo';
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description={`${SITE.name} privacy policy — how we collect, use, and protect your data.`}
+  canonical={buildCanonical('/privacy-policy/')}
+>
+  <div class="container py-16 lg:py-24 max-w-prose mx-auto">
+
+    <h1 class="font-serif text-4xl font-bold text-slate-900 mb-4">Privacy Policy</h1>
+    <p class="text-sm text-slate-400 mb-10">Last updated: {new Date().getFullYear()}</p>
+
+    <div class="prose prose-lg prose-slate">
+
+      <p>
+        Lucky Living ("<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>")
+        operates {SITE.url}. This page informs you of our policies regarding the collection,
+        use, and disclosure of personal information when you use our website.
+      </p>
+
+      <h2>Information We Collect</h2>
+      <p>We may collect the following types of information:</p>
+      <ul>
+        <li><strong>Email address</strong> — if you subscribe to our newsletter</li>
+        <li><strong>Usage data</strong> — pages visited, time spent, device type (via analytics)</li>
+        <li><strong>Cookies</strong> — small files stored on your device for site functionality and analytics</li>
+      </ul>
+
+      <h2>How We Use Your Information</h2>
+      <ul>
+        <li>To send our newsletter (only if you subscribed)</li>
+        <li>To understand how visitors use our site and improve content</li>
+        <li>To comply with legal obligations</li>
+      </ul>
+
+      <h2>Cookies</h2>
+      <p>
+        Lucky Living uses cookies for analytics and site performance. You can instruct your
+        browser to refuse all cookies or to indicate when a cookie is being sent. However,
+        some features of our site may not function properly without cookies.
+      </p>
+
+      <h2>Third-Party Services</h2>
+      <p>We may use third-party services that collect, monitor, and analyze data:</p>
+      <ul>
+        <li><strong>Google Analytics</strong> — website usage analytics</li>
+        <li><strong>Amazon Associates</strong> — affiliate link tracking</li>
+        <li><strong>Email newsletter providers</strong> — newsletter delivery</li>
+      </ul>
+      <p>
+        These third parties have their own privacy policies. We encourage you to review them.
+      </p>
+
+      <h2>Data Retention</h2>
+      <p>
+        We retain your personal data only as long as necessary for the purposes set out in
+        this policy or as required by law.
+      </p>
+
+      <h2>Your Rights</h2>
+      <p>Depending on your location, you may have the right to:</p>
+      <ul>
+        <li>Access the personal data we hold about you</li>
+        <li>Request correction or deletion of your data</li>
+        <li>Opt out of marketing communications at any time</li>
+      </ul>
+
+      <h2>Children's Privacy</h2>
+      <p>
+        Our service is not directed to anyone under the age of 13. We do not knowingly
+        collect personally identifiable information from children under 13.
+      </p>
+
+      <h2>Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. We will notify you of any
+        changes by updating the date at the top of this page.
+      </p>
+
+      <h2>Contact Us</h2>
+      <p>
+        If you have questions about this Privacy Policy, please{' '}
+        <a href="/contact/">contact us</a>.
+      </p>
+
+    </div>
+  </div>
+</BaseLayout>

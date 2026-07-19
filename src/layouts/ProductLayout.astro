@@ -1,0 +1,251 @@
+---
+/**
+ * ProductLayout.astro
+ * Layout for product review pages. Handles SEO, schema,
+ * rating display, pros/cons, and affiliate CTAs.
+ */
+import BaseLayout           from './BaseLayout.astro';
+import Breadcrumbs          from '@components/Breadcrumbs.astro';
+import AffiliateButton      from '@components/AffiliateButton.astro';
+import NewsletterSection    from '@components/NewsletterSection.astro';
+import { SITE }             from '@data/site';
+import { getCategoryBySlug }from '@data/categories';
+import { getAuthorById }    from '@data/authors';
+import {
+  buildProductSchema,
+  buildBreadcrumbSchema,
+  buildCanonical,
+}                           from '@utils/seo';
+import { formatDate, isoDate } from '@utils/relatedContent';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'products'>;
+}
+
+const { entry } = Astro.props;
+const { data }  = entry;
+
+const category  = getCategoryBySlug(data.category);
+const author    = getAuthorById(data.author ?? 'lucky-living');
+const canonical = buildCanonical(`/reviews/${entry.slug}/`);
+
+const { Content } = await entry.render();
+
+// JSON-LD schemas
+const productSchema    = buildProductSchema({
+  name:         data.name,
+  description:  data.seoDescription ?? data.description,
+  url:          canonical,
+  image:        data.image,
+  rating:       data.rating,
+  affiliateUrl: data.affiliateUrl,
+  price:        data.pricePlaceholder,
+});
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home',    url: '/' },
+  { name: 'Reviews', url: '/category/reviews/' },
+  { name: data.name, url: `/reviews/${entry.slug}/` },
+]);
+
+// Star rendering helper
+function renderStars(rating: number): { full: number; half: boolean; empty: number } {
+  return {
+    full:  Math.floor(rating),
+    half:  rating % 1 >= 0.5,
+    empty: 5 - Math.floor(rating) - (rating % 1 >= 0.5 ? 1 : 0),
+  };
+}
+
+const stars = data.rating ? renderStars(data.rating) : null;
+---
+
+<BaseLayout
+  title={data.seoTitle ?? data.name}
+  description={data.seoDescription ?? data.description}
+  keywords={data.keywords}
+  canonical={canonical}
+  ogImage={data.image}
+  ogType="article"
+  publishDate={data.publishDate}
+  updatedDate={data.updatedDate}
+  author={author.name}
+  schema={[productSchema, breadcrumbSchema]}
+>
+  <!-- ── Breadcrumbs ──────────────────────────────────────── -->
+  <div class="container">
+    <Breadcrumbs items={[
+      { label: 'Home',    href: '/' },
+      { label: 'Reviews', href: '/category/reviews/' },
+      { label: data.name, href: `/reviews/${entry.slug}/` },
+    ]} />
+  </div>
+
+  <article class="container pb-16 lg:pb-24">
+
+    <!-- ── Review header grid ───────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16 items-start">
+
+      <!-- Product image -->
+      <div class="rounded-2xl overflow-hidden bg-slate-50 aspect-square flex items-center justify-center">
+        {data.image ? (
+          <img
+            src={data.image}
+            alt={data.imageAlt || data.name}
+            width="600"
+            height="600"
+            class="w-full h-full object-contain p-6"
+            loading="eager"
+            fetchpriority="high"
+          />
+        ) : (
+          <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
+            No image available
+          </div>
+        )}
+      </div>
+
+      <!-- Product info -->
+      <div class="flex flex-col gap-5">
+
+        <!-- Category badge -->
+        <a
+          href={`/category/${data.category}/`}
+          class="badge badge-gray w-fit hover:opacity-80 transition-opacity"
+        >
+          {category?.name ?? data.category}
+        </a>
+
+        <!-- Name -->
+        <h1 class="font-serif text-4xl lg:text-5xl font-bold text-slate-900 leading-tight text-balance">
+          {data.name}
+        </h1>
+
+        <!-- Description -->
+        <p class="text-lg text-slate-600 leading-relaxed">{data.description}</p>
+
+        <!-- Rating -->
+        {stars && data.rating && (
+          <div class="flex items-center gap-3">
+            <div
+              class="flex gap-0.5 text-amber-400"
+              role="img"
+              aria-label={`Rating: ${data.rating} out of 5 stars`}
+            >
+              {Array.from({ length: stars.full }).map(() => (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              ))}
+              {stars.half && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 opacity-50" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              )}
+              {Array.from({ length: stars.empty }).map(() => (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-slate-300" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              ))}
+            </div>
+            <span class="font-semibold text-slate-800">{data.rating}</span>
+            <span class="text-slate-400 text-sm">/ 5.0</span>
+          </div>
+        )}
+
+        <!-- Price + CTA -->
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-6 flex flex-col gap-4">
+          {data.pricePlaceholder && (
+            <div>
+              <p class="text-xs uppercase tracking-widest text-slate-400 mb-1">Price</p>
+              <p class="text-3xl font-bold text-slate-900">{data.pricePlaceholder}</p>
+            </div>
+          )}
+          <AffiliateButton
+            href={data.affiliateUrl}
+            label={data.affiliateLabel ?? 'Check Price on Amazon'}
+            size="lg"
+          />
+          <p class="text-xs text-slate-400 text-center">
+            {SITE.affiliate.disclosureShort}{' '}
+            <a href={SITE.affiliate.disclosureUrl} class="underline hover:text-slate-600">
+              Learn more
+            </a>.
+          </p>
+        </div>
+
+        <!-- Publish date -->
+        <p class="text-xs text-slate-400">
+          Reviewed by <strong class="text-slate-600">{author.name}</strong>
+          {' '}on{' '}
+          <time datetime={isoDate(data.publishDate)}>{formatDate(data.publishDate)}</time>
+          {data.updatedDate && (
+            <> · Updated <time datetime={isoDate(data.updatedDate)}>{formatDate(data.updatedDate)}</time></>
+          )}
+        </p>
+
+      </div>
+    </div>
+
+    <!-- ── Pros & Cons ───────────────────────────────────── -->
+    {(data.pros.length > 0 || data.cons.length > 0) && (
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-16 max-w-3xl">
+
+        {data.pros.length > 0 && (
+          <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-emerald-700 mb-4">
+              ✓ Pros
+            </h3>
+            <ul class="space-y-2">
+              {data.pros.map((pro) => (
+                <li class="flex gap-2 text-sm text-emerald-800 leading-snug">
+                  <span class="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
+                  <span>{pro}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {data.cons.length > 0 && (
+          <div class="rounded-2xl bg-red-50 border border-red-200 p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-red-700 mb-4">
+              ✗ Cons
+            </h3>
+            <ul class="space-y-2">
+              {data.cons.map((con) => (
+                <li class="flex gap-2 text-sm text-red-800 leading-snug">
+                  <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+                  <span>{con}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+      </div>
+    )}
+
+    <!-- ── Review body ────────────────────────────────────── -->
+    <div class="max-w-prose prose prose-lg prose-slate">
+      <Content />
+    </div>
+
+    <!-- ── Final CTA ──────────────────────────────────────── -->
+    <div class="max-w-prose mt-12 pt-10 border-t border-slate-200">
+      <p class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
+        Ready to buy?
+      </p>
+      <AffiliateButton
+        href={data.affiliateUrl}
+        label={data.affiliateLabel ?? 'Check Price on Amazon'}
+        size="lg"
+      />
+    </div>
+
+  </article>
+
+  <!-- ── Newsletter ────────────────────────────────────────── -->
+  <NewsletterSection />
+</BaseLayout>

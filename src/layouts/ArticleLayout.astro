@@ -1,0 +1,243 @@
+---
+/**
+ * ArticleLayout.astro
+ * Layout for article pages. Handles SEO, schema, breadcrumbs,
+ * reading time, author info, and related articles.
+ */
+import BaseLayout           from './BaseLayout.astro';
+import Breadcrumbs          from '@components/Breadcrumbs.astro';
+import ArticleCard          from '@components/ArticleCard.astro';
+import AffiliateButton      from '@components/AffiliateButton.astro';
+import NewsletterSection    from '@components/NewsletterSection.astro';
+import { SITE }             from '@data/site';
+import { getCategoryBySlug }from '@data/categories';
+import { getAuthorById }    from '@data/authors';
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+  buildCanonical,
+}                           from '@utils/seo';
+import { getReadingTime }   from '@utils/readingTime';
+import { formatDate, isoDate, getRelatedArticles } from '@utils/relatedContent';
+import { getCollection }    from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'articles'>;
+}
+
+const { entry } = Astro.props;
+const { data }  = entry;
+
+const category  = getCategoryBySlug(data.category);
+const author    = getAuthorById(data.author ?? 'lucky-living');
+const canonical = buildCanonical(`/articles/${entry.slug}/`);
+
+// Reading time from rendered body
+const { Content, remarkPluginFrontmatter } = await entry.render();
+const bodyText    = remarkPluginFrontmatter?.rawContent ?? '';
+const readingTime = getReadingTime(bodyText);
+
+// Related articles
+const allArticles = await getCollection('articles', (a) => !a.data.draft);
+const related     = getRelatedArticles(entry, allArticles, 3);
+
+// JSON-LD schemas
+const articleSchema    = buildArticleSchema({
+  title:       data.seoTitle ?? data.title,
+  description: data.seoDescription ?? data.description,
+  url:         canonical,
+  image:       data.featuredImage,
+  publishDate: data.publishDate,
+  updatedDate: data.updatedDate,
+  author:      author.name,
+});
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home',           url: '/' },
+  { name: category?.name ?? data.category, url: `/category/${data.category}/` },
+  { name: data.title,       url: `/articles/${entry.slug}/` },
+]);
+---
+
+<BaseLayout
+  title={data.seoTitle ?? data.title}
+  description={data.seoDescription ?? data.description}
+  keywords={data.keywords}
+  canonical={canonical}
+  ogImage={data.featuredImage}
+  ogType="article"
+  publishDate={data.publishDate}
+  updatedDate={data.updatedDate}
+  author={author.name}
+  schema={[articleSchema, breadcrumbSchema]}
+>
+  <!-- ── Breadcrumbs ──────────────────────────────────────── -->
+  <div class="container">
+    <Breadcrumbs items={[
+      { label: 'Home',                href: '/' },
+      { label: category?.name ?? data.category, href: `/category/${data.category}/` },
+      { label: data.title,            href: `/articles/${entry.slug}/` },
+    ]} />
+  </div>
+
+  <!-- ── Article header ───────────────────────────────────── -->
+  <article class="container pb-16 lg:pb-24">
+    <header class="max-w-prose mx-auto mb-10">
+
+      <!-- Category badge -->
+      <a
+        href={`/category/${data.category}/`}
+        class="badge badge-primary mb-4 hover:opacity-80 transition-opacity"
+        style={category ? `background-color: ${category.accentHex}1a; color: ${category.accentHex}` : ''}
+      >
+        {category?.name ?? data.category}
+      </a>
+
+      <!-- Title -->
+      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-slate-900 leading-tight mb-6 text-balance">
+        {data.title}
+      </h1>
+
+      <!-- Description -->
+      <p class="text-xl text-slate-600 leading-relaxed mb-8">{data.description}</p>
+
+      <!-- Meta row -->
+      <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500 pb-8 border-b border-slate-200">
+        <!-- Author -->
+        <div class="flex items-center gap-2">
+          {author.avatar && (
+            <img
+              src={author.avatar}
+              alt={author.name}
+              width="32"
+              height="32"
+              class="w-8 h-8 rounded-full object-cover bg-slate-200"
+              loading="lazy"
+            />
+          )}
+          <span class="font-medium text-slate-700">{author.name}</span>
+        </div>
+
+        <span aria-hidden="true" class="text-slate-300">·</span>
+
+        <!-- Date -->
+        <time datetime={isoDate(data.publishDate)}>
+          {formatDate(data.publishDate)}
+        </time>
+
+        {data.updatedDate && (
+          <>
+            <span aria-hidden="true" class="text-slate-300">·</span>
+            <span>Updated <time datetime={isoDate(data.updatedDate)}>{formatDate(data.updatedDate)}</time></span>
+          </>
+        )}
+
+        <span aria-hidden="true" class="text-slate-300">·</span>
+
+        <!-- Reading time -->
+        <span>{readingTime}</span>
+      </div>
+    </header>
+
+    <!-- ── Featured image ────────────────────────────────── -->
+    {data.featuredImage && (
+      <div class="max-w-4xl mx-auto mb-12 rounded-2xl overflow-hidden aspect-video bg-slate-100">
+        <img
+          src={data.featuredImage}
+          alt={data.featuredImageAlt || data.title}
+          width="1200"
+          height="675"
+          class="w-full h-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+    )}
+
+    <!-- ── Affiliate disclosure ───────────────────────────── -->
+    {data.affiliateLinks && data.affiliateLinks.length > 0 && (
+      <div class="max-w-prose mx-auto mb-8">
+        <p class="text-xs text-slate-400 italic">
+          {SITE.affiliate.disclosureShort}{' '}
+          <a href={SITE.affiliate.disclosureUrl} class="underline hover:text-slate-600">
+            Learn more
+          </a>.
+        </p>
+      </div>
+    )}
+
+    <!-- ── Article body ───────────────────────────────────── -->
+    <div class="max-w-prose mx-auto prose prose-lg prose-slate">
+      <Content />
+    </div>
+
+    <!-- ── Affiliate CTA buttons ─────────────────────────── -->
+    {data.affiliateLinks && data.affiliateLinks.length > 0 && (
+      <div class="max-w-prose mx-auto mt-12 pt-10 border-t border-slate-200">
+        <p class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
+          Where to Buy
+        </p>
+        <div class="flex flex-wrap gap-3">
+          {data.affiliateLinks.map((link) => (
+            <AffiliateButton
+              href={link.url}
+              label={link.label}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- ── Tags ──────────────────────────────────────────── -->
+    {data.tags && data.tags.length > 0 && (
+      <div class="max-w-prose mx-auto mt-10 flex flex-wrap gap-2">
+        {data.tags.map((tag) => (
+          <span class="badge badge-gray">{tag}</span>
+        ))}
+      </div>
+    )}
+
+    <!-- ── Author bio ─────────────────────────────────────── -->
+    <div class="max-w-prose mx-auto mt-12 pt-10 border-t border-slate-200">
+      <div class="flex gap-5 items-start">
+        {author.avatar && (
+          <img
+            src={author.avatar}
+            alt={author.name}
+            width="56"
+            height="56"
+            class="w-14 h-14 rounded-full object-cover bg-slate-200 flex-shrink-0"
+            loading="lazy"
+          />
+        )}
+        <div>
+          <p class="font-semibold text-slate-900 mb-1">{author.name}</p>
+          <p class="text-sm text-slate-600 leading-relaxed">{author.bio}</p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ── Related articles ──────────────────────────────────── -->
+  {related.length > 0 && (
+    <section class="bg-slate-50 py-16 lg:py-20" aria-labelledby="related-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 id="related-heading" class="section-title">You Might Also Like</h2>
+          <a href={`/category/${data.category}/`} class="section-link">
+            More in {category?.name ?? data.category} →
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {related.map((article) => (
+            <ArticleCard entry={article} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ── Newsletter ────────────────────────────────────────── -->
+  <NewsletterSection />
+</BaseLayout>

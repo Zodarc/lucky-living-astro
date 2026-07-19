@@ -1,0 +1,323 @@
+---
+/**
+ * ProductCard.astro
+ *
+ * Conversion-focused product card for an affiliate review site.
+ *
+ * Visual hierarchy (top → bottom):
+ *   1. Product image       — large, clean, brand-credible
+ *   2. Category + name     — orient the reader immediately
+ *   3. Rating row          — social proof with gold stars + numeric score
+ *   4. Description/summary — one sentence of editorial voice
+ *   5. Pros (top 2)        — scannable green checkmarks, fastest path to "yes"
+ *   6. Price + CTA         — gold button with price visible before the click
+ *
+ * Component API: unchanged.
+ *   Props:  { entry: CollectionEntry<'products'> }
+ *   Imports: AffiliateButton, getCategoryBySlug, CollectionEntry
+ *
+ * Animations (CSS only, no JS):
+ *   - Card lifts + shadow deepens on hover     (.card in global.css)
+ *   - Product image scales into frame          (group-zoom + transition)
+ *   - Image background reveals a shimmer ring  (::after pseudo via scoped style)
+ *   - CTA button brightens + shifts up         (AffiliateButton hover state)
+ *   - Name colour shifts to brand-accent       (group-hover:text-brand-accent)
+ *
+ * Gold accent: rating stars, "Editor's Score" label,
+ *              price badge background, CTA button (via AffiliateButton).
+ */
+import AffiliateButton       from './AffiliateButton.astro';
+import { getCategoryBySlug } from '@data/categories';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'products'>;
+}
+
+const { entry } = Astro.props;
+const { data, slug } = entry;
+
+const category = getCategoryBySlug(data.category);
+
+// ── Star rendering (logic unchanged from original) ───────────
+const fullStars  = data.rating ? Math.floor(data.rating) : 0;
+const hasHalf    = data.rating ? data.rating % 1 >= 0.5 : false;
+const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+
+// ── Pros: show at most 2 on the card — keep it scannable ─────
+const displayPros = (data.pros ?? []).slice(0, 2);
+
+// ── Score colour band ─────────────────────────────────────────
+// 4.5+ → gold  |  4.0–4.4 → green  |  below → default slate
+const scoreColor =
+  !data.rating          ? '#64748B'
+  : data.rating >= 4.5  ? '#D97706'   // brand-gold
+  : data.rating >= 4.0  ? '#059669'   // brand-success
+  :                        '#64748B';
+---
+
+<!--
+  Root: .card from global.css provides white bg, 1rem border-radius,
+  subtle shadow, and the translateY(-2px) + deeper shadow on hover.
+  will-change-transform promotes to its own compositor layer early.
+-->
+<div class="card flex flex-col group will-change-transform">
+
+  <!-- ═══════════════════════════════════════════════════════
+       IMAGE ZONE
+       Soft gradient background so white-background product photos
+       don't look pasted in. Image scales gently on hover.
+  ═══════════════════════════════════════════════════════════ -->
+  <a
+    href={`/reviews/${slug}/`}
+    class="product-image-zone block relative overflow-hidden no-underline flex-shrink-0"
+    tabindex="-1"
+    aria-hidden="true"
+    style="aspect-ratio: 4/3;"
+  >
+    <!-- Gradient wash — category-tinted if available, otherwise neutral -->
+    <div
+      class="absolute inset-0"
+      aria-hidden="true"
+      style={category
+        ? `background: radial-gradient(ellipse at 50% 40%, ${category.accentHex}12 0%, #F8FAFC 65%);`
+        : 'background: radial-gradient(ellipse at 50% 40%, #E2E8F0 0%, #F8FAFC 65%);'}
+    />
+
+    {data.image ? (
+      <img
+        src={data.image}
+        alt={data.imageAlt || data.name}
+        width="480"
+        height="360"
+        class="group-zoom relative w-full h-full object-contain p-6
+               transition-[filter] duration-500 group-hover:drop-shadow-lg"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <div class="relative w-full h-full flex flex-col items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.2"
+             class="text-slate-300" aria-hidden="true">
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+          <circle cx="9" cy="9" r="2"/>
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+        </svg>
+        <span class="text-xs text-slate-400">No image</span>
+      </div>
+    )}
+
+    <!-- Rating score badge — floated top-right over image -->
+    {data.rating && (
+      <div
+        class="absolute top-3 right-3 flex flex-col items-center justify-center
+               w-11 h-11 rounded-xl font-bold text-white shadow-card
+               transition-transform duration-200 group-hover:scale-110"
+        style={`background-color: ${scoreColor};`}
+        aria-hidden="true"
+      >
+        <span class="text-base leading-none">{data.rating}</span>
+        <span class="text-[9px] font-semibold uppercase tracking-wide opacity-80 mt-0.5">
+          /5
+        </span>
+      </div>
+    )}
+
+    <!-- Category pill — bottom-left -->
+    {category && (
+      <span
+        class="absolute bottom-3 left-3 badge"
+        style={`background-color: ${category.accentHex}1a; color: ${category.accentHex};`}
+      >
+        {category.name}
+      </span>
+    )}
+
+  </a><!-- /image zone -->
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BODY
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="flex flex-col flex-1 p-5 pt-4 gap-0">
+
+    <!-- ── Product name ────────────────────────────────── -->
+    <a href={`/reviews/${slug}/`} class="no-underline block mb-2.5">
+      <h3
+        class="font-serif text-[1.0625rem] font-bold text-slate-900 leading-snug
+               line-clamp-2 text-balance transition-colors duration-150
+               group-hover:text-brand-accent"
+      >
+        {data.name}
+      </h3>
+    </a>
+
+    <!-- ── Rating stars row ────────────────────────────── -->
+    {data.rating ? (
+      <div
+        class="flex items-center gap-2 mb-3"
+        role="img"
+        aria-label={`Rated ${data.rating} out of 5 stars`}
+      >
+        <!-- Stars -->
+        <div class="flex gap-0.5">
+          {Array.from({ length: fullStars }).map(() => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 fill="currentColor" class="w-3.5 h-3.5 text-amber-400" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          ))}
+          {hasHalf && (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 fill="currentColor" class="w-3.5 h-3.5 text-amber-400 opacity-50"
+                 aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          )}
+          {Array.from({ length: emptyStars }).map(() => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.5"
+                 class="w-3.5 h-3.5 text-slate-300" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          ))}
+        </div>
+
+        <!-- Numeric score -->
+        <span
+          class="text-xs font-bold tabular-nums"
+          style={`color: ${scoreColor};`}
+        >
+          {data.rating}
+        </span>
+
+        <!-- "Editor's Score" label -->
+        <span class="text-[10px] text-slate-400 font-medium">
+          Editor's Score
+        </span>
+      </div>
+    ) : (
+      <!-- No rating — thin spacer to keep layout consistent -->
+      <div class="mb-3" />
+    )}
+
+    <!-- ── Description summary ──────────────────────────── -->
+    {data.description && (
+      <p class="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-3">
+        {data.description}
+      </p>
+    )}
+
+    <!-- ── Pros (top 2 only) ────────────────────────────── -->
+    {displayPros.length > 0 && (
+      <ul
+        class="space-y-1 mb-4"
+        aria-label="Key highlights"
+      >
+        {displayPros.map((pro) => (
+          <li class="flex items-start gap-1.5 text-xs text-slate-600 leading-snug">
+            <!-- Green check -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13" height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-emerald-500 flex-shrink-0 mt-[1px]"
+              aria-hidden="true"
+            >
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            <span class="line-clamp-1">{pro}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <!-- ── Spacer — pushes price+CTA to bottom ─────────── -->
+    <div class="flex-1" />
+
+    <!-- ── Price + CTA block ────────────────────────────── -->
+    <div class="pt-3.5 border-t border-slate-100 space-y-2.5">
+
+      <!-- Price row -->
+      {data.pricePlaceholder && (
+        <div class="flex items-baseline justify-between gap-2">
+          <div>
+            <p class="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-0.5">
+              Price
+            </p>
+            <p
+              class="text-2xl font-bold leading-none tabular-nums"
+              style="color: #0F172A;"
+            >
+              {data.pricePlaceholder}
+            </p>
+          </div>
+          <!-- "Best Price" trust signal -->
+          <span
+            class="inline-flex items-center gap-1 text-[10px] font-semibold
+                   uppercase tracking-wide text-emerald-600 bg-emerald-50
+                   border border-emerald-200 rounded-full px-2 py-1
+                   whitespace-nowrap"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="3" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            Best price
+          </span>
+        </div>
+      )}
+
+      <!-- Primary affiliate CTA — full-width gold button -->
+      <AffiliateButton
+        href={data.affiliateUrl}
+        label={data.affiliateLabel ?? 'Check Price on Amazon'}
+        block
+        size="md"
+      />
+
+      <!-- Secondary trust copy — micro disclosure -->
+      <p class="text-center text-[10px] text-slate-400 leading-snug">
+        Opens on retailer site
+        <span aria-hidden="true"> · </span>
+        We may earn a commission
+      </p>
+
+    </div><!-- /price + CTA -->
+
+  </div><!-- /body -->
+
+</div><!-- /card -->
+
+<style>
+  /*
+    Scoped to this component only.
+    All shared tokens are in global.css.
+  */
+
+  /*
+    Image zone: hover ring — a very faint inset glow that appears
+    on hover to signal the image is clickable without a heavy border.
+    Done as ::after so it doesn't interfere with the image layout.
+  */
+  .product-image-zone::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 0;  /* inherits parent overflow:hidden clip */
+    box-shadow: inset 0 0 0 1.5px transparent;
+    transition: box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .group:hover .product-image-zone::after {
+    box-shadow: inset 0 0 0 1.5px rgb(37 99 235 / 0.15);
+  }
+</style>

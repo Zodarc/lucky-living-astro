@@ -1,0 +1,66 @@
+---
+import BaseLayout        from '@layouts/BaseLayout.astro';
+import NewsletterSection from '@components/NewsletterSection.astro';
+import { SITE }          from '@data/site';
+import { buildCanonical }from '@utils/seo';
+---
+
+<BaseLayout
+  title="About Lucky Living"
+  description={`Learn about ${SITE.name} — our mission, values, and the team behind the reviews.`}
+  canonical={buildCanonical('/about/')}
+>
+  <div class="container py-16 lg:py-24 max-w-prose mx-auto">
+
+    <h1 class="font-serif text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+      About Lucky Living
+    </h1>
+
+    <div class="prose prose-lg prose-slate">
+      <p>
+        <strong>Lucky Living</strong> is a lifestyle technology media brand dedicated to helping
+        people discover smarter products, better habits, and meaningful upgrades for everyday life.
+      </p>
+
+      <h2>Our Mission</h2>
+      <p>
+        We believe that the right product at the right time can genuinely improve your day.
+        Our mission is to cut through the noise, test what's out there, and give you honest,
+        straightforward recommendations you can trust.
+      </p>
+
+      <h2>What We Cover</h2>
+      <ul>
+        <li><strong>Smart Home</strong> — devices, automation, and connected living</li>
+        <li><strong>Tech Life</strong> — laptops, phones, wearables, and gadgets</li>
+        <li><strong>Home &amp; Design</strong> — furniture, décor, and interior ideas</li>
+        <li><strong>Wellness</strong> — fitness, sleep, nutrition, and mental health tools</li>
+        <li><strong>Style</strong> — clothing, accessories, and personal care</li>
+        <li><strong>Reviews</strong> — in-depth product testing across every category</li>
+        <li><strong>Deals</strong> — the best sales and discounts curated daily</li>
+      </ul>
+
+      <h2>How We Make Money</h2>
+      <p>
+        Lucky Living participates in affiliate advertising programs including the Amazon
+        Associates Program. When you click a link and make a purchase, we may earn a small
+        commission at no extra cost to you. This helps us keep the site free and the content
+        independent.
+      </p>
+      <p>
+        We only recommend products we genuinely believe in. Affiliate relationships never
+        influence our editorial opinions.{' '}
+        <a href="/affiliate-disclosure/">Read our full disclosure</a>.
+      </p>
+
+      <h2>Contact Us</h2>
+      <p>
+        Have a question, partnership inquiry, or product suggestion?{' '}
+        <a href="/contact/">Get in touch</a>.
+      </p>
+    </div>
+
+  </div>
+
+  <NewsletterSection />
+</BaseLayout>

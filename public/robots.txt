@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Block build artifacts
+Disallow: /_astro/
+
+Sitemap: https://www.luckyliving.com/sitemap-index.xml

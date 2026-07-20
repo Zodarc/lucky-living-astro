@@ -6,7 +6,7 @@ export const SITE = {
   name:        'Lucky Living',
   tagline:     'Smarter Products. Better Life.',
   description: 'Discover smarter products, honest reviews, and lifestyle upgrades. Lucky Living covers smart home, tech, wellness, style, and the best deals online.',
-  url:         'https://www.luckyliving.com',
+  url:         'https://lucky-living-astro.vercel.app/',
   language:    'en',
   locale:      'en_US',
 
@@ -33,7 +33,7 @@ export const SITE = {
     { label: 'Home & Design', href: '/category/home-design/' },
     { label: 'Wellness',      href: '/category/wellness/' },
     { label: 'Style',         href: '/category/style/' },
-    { label: 'Reviews',       href: '/category/reviews/' },
+    { label: 'Reviews',       href: '/reviews/' },
     { label: 'Deals',         href: '/category/deals/' },
   ],
 
@@ -57,7 +57,7 @@ export const SITE = {
 
   // Affiliate
   affiliate: {
-    amazonTag:       '',   // Your Amazon Associates tag e.g. 'luckyliving-20'
+    amazonTag:       'luckyliving07-20',   // Your Amazon Associates tag e.g. 'luckyliving-20'
     disclosureShort: 'We may earn a commission from links on this page.',
     disclosureUrl:   '/affiliate-disclosure/',
   },

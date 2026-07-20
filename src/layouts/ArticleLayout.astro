@@ -18,7 +18,14 @@ import {
   buildCanonical,
 }                           from '@utils/seo';
 import { getReadingTime }   from '@utils/readingTime';
-import { formatDate, isoDate, getRelatedArticles } from '@utils/relatedContent';
+import {
+  formatDate,
+  isoDate,
+  getRelatedArticles,
+  getRelatedProducts
+} from '@utils/relatedContent';
+
+import ProductCard from '@components/ProductCard.astro';
 import { getCollection }    from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
@@ -41,6 +48,16 @@ const readingTime = getReadingTime(bodyText);
 // Related articles
 const allArticles = await getCollection('articles', (a) => !a.data.draft);
 const related     = getRelatedArticles(entry, allArticles, 3);
+
+const allProducts = await getCollection('products');
+
+const recommendedProducts = allProducts
+  .filter(
+    (product) =>
+      !product.data.draft &&
+      product.data.category === entry.data.category
+  )
+  .slice(0, 3);
 
 // JSON-LD schemas
 const articleSchema    = buildArticleSchema({
@@ -171,6 +188,32 @@ const breadcrumbSchema = buildBreadcrumbSchema([
     <div class="max-w-prose mx-auto prose prose-lg prose-slate">
       <Content />
     </div>
+
+    <!-- ── Recommended Reviews ─────────────────────────── -->
+
+{recommendedProducts.length > 0 && (
+  <section class="mt-16">
+
+    <div class="container">
+
+      <div class="section-header mb-8">
+        <h2 class="section-title">
+          ⭐ Recommended Reviews
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {recommendedProducts.map((product) => (
+          <ProductCard entry={product} />
+        ))}
+
+      </div>
+
+    </div>
+
+  </section>
+)}
 
     <!-- ── Affiliate CTA buttons ─────────────────────────── -->
     {data.affiliateLinks && data.affiliateLinks.length > 0 && (

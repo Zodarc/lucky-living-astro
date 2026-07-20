@@ -88,3 +88,27 @@ export function formatDate(date: Date): string {
 export function isoDate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
+type Product = CollectionEntry<'products'>;
+
+/**
+ * Find related products for a product review.
+ *
+ * Priority:
+ * 1. Same category
+ * 2. Shared brand
+ */
+export function getRelatedProducts(
+  current: Product,
+  all: Product[],
+  limit = 3
+): Product[] {
+
+  return all
+    .filter(
+      (p) =>
+        p.slug !== current.slug &&
+        !p.data.draft &&
+        p.data.category === current.data.category
+    )
+    .slice(0, limit);
+}

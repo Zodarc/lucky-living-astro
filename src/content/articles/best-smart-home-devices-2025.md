@@ -1,7 +1,7 @@
 ---
 title: "The 10 Best Smart Home Devices of 2025"
 description: "We tested the top smart home gadgets of the year — from voice assistants to smart lighting — and ranked the ones actually worth buying."
-featuredImage: "/images/articles/best-smart-home-devices-2025.jpg"
+featuredImage: "/images/articles/best-smart-home-devices-2025.png"
 featuredImageAlt: "A modern living room with smart home devices on a shelf"
 category: "smart-home"
 tags:
@@ -20,11 +20,11 @@ keywords:
   - smart home buying guide
 affiliateLinks:
   - label: "Amazon Echo (4th Gen) — Check Price"
-    url: "https://www.amazon.com/dp/B07XKF5RM3?tag=your-tag-20"
+    url: "https://amzn.to/4fqVXZe"
   - label: "Philips Hue Starter Kit — Check Price"
     url: "https://www.amazon.com/dp/B07GXZ91DT?tag=your-tag-20"
 relatedArticles:
-  - smart-home-starter-guide
+  - best-smart-speakers-2026
 featured: true
 draft: false
 ---

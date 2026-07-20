@@ -1,0 +1,63 @@
+---
+/**
+ * reviews/index.astro
+ * Product review archive
+ */
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ProductCard from '@components/ProductCard.astro';
+import { getCollection } from 'astro:content';
+import { buildCanonical } from '@utils/seo';
+
+const products = await getCollection(
+  'products',
+  (entry) => !entry.data.draft
+);
+
+const sortedProducts = products.sort(
+  (a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0)
+);
+
+const canonical = buildCanonical('/reviews/');
+---
+
+<BaseLayout
+  title="Product Reviews | Lucky Living"
+  description="Honest product reviews, ratings, and buying guides covering smart home, tech, wellness, and lifestyle products."
+  canonical={canonical}
+>
+
+<section class="relative py-16 lg:py-24 bg-slate-900 text-white">
+
+  <div class="container">
+
+    <h1 class="font-serif text-4xl lg:text-5xl font-bold mb-4">
+      Product Reviews
+    </h1>
+
+    <p class="text-lg text-white/70 max-w-2xl">
+      Honest reviews, ratings, and buying advice to help you choose better products.
+    </p>
+
+  </div>
+
+</section>
+
+
+<section class="section bg-white">
+
+<div class="container">
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+{sortedProducts.map((product) => (
+  <ProductCard entry={product} />
+))}
+
+</div>
+
+</div>
+
+</section>
+
+</BaseLayout>

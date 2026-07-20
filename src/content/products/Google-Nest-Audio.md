@@ -1,6 +1,7 @@
 ---
-name: "Google Nest Audio (3-Pack) Smart Speakers"
+productName: "Google Nest Audio"
 description: "Google Nest Audio (3-Pack) Smart Speakers – Multi-Room Wireless Home Speaker Bundle with Bluetooth, Wi-Fi, Assistant, Stereo Sound, Voice Control & Smart Home Integration"
+brand: "Google"
 image: "/images/products/google nest audio.jpg"
 imageAlt: "Google Nest Audio (3-Pack) Smart Speakers"
 category: "smart-home"
@@ -18,7 +19,9 @@ cons:
   ❌ No battery (requires power outlet)
   ❌ Less useful outside Google's ecosystem
   ❌ 3-pack can be expensive
-seoTitle: "Google Nest Audio Review: Is It Worth Buying in 2026? | Lucky Living"
+
+
+seoTitle: "Google Nest Audio Review (2026): Pros, Cons & Verdict"
 seoDescription: "Is Google Nest Audio worth buying in 2026? We review its sound quality, smart features, Google Assistant, pros, cons, and alternatives."
 keywords:
   - smart speakers
@@ -34,10 +37,26 @@ publishDate: 2026-07-20
 featured: true
 draft: false
 ---
+# Google Nest Audio Review
 
 Smart speakers have become one of the easiest ways to start building a connected home. The Google Nest Audio combines powerful sound, Google Assistant, and smart home controls in a compact design. But with many affordable speakers available today, is it still worth buying?
 
-Key Features
+## Specifications
+
+| Feature | Details |
+|---|---|
+| Brand | Google |
+| Model | Nest Audio |
+| Connectivity | Wi-Fi, Bluetooth |
+| Voice Assistant | Google Assistant |
+| Audio Output | 30 watts |
+| Audio Mode | Stereo |
+| Smart Home Support | Compatible with thousands of smart devices |
+| Multi-Room Audio | Yes |
+| Power | Wired |
+| Best For | Smart homes, music, voice control |
+
+## Key Features
 
 ## Whole-Home Audio
 

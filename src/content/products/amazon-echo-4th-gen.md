@@ -4,9 +4,9 @@ description: "Amazon's best-sounding Echo yet. The spherical design looks great 
 image: "/images/products/amazon-echo-4th-gen.jpg"
 imageAlt: "Amazon Echo 4th Generation smart speaker in charcoal"
 category: "smart-home"
-affiliateUrl: "https://www.amazon.com/dp/B07XKF5RM3?tag=your-tag-20"
+affiliateUrl: "https://amzn.to/4fqVXZe"
 affiliateLabel: "Check Price on Amazon"
-pricePlaceholder: "$99.99"
+pricePlaceholder: "$114.98"
 rating: 4.7
 pros:
   - "Rich, room-filling sound"

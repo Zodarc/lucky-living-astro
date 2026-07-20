@@ -1,4 +1,5 @@
 ---
+name: "Google Nest Audio"
 productName: "Google Nest Audio"
 description: "Google Nest Audio (3-Pack) Smart Speakers – Multi-Room Wireless Home Speaker Bundle with Bluetooth, Wi-Fi, Assistant, Stereo Sound, Voice Control & Smart Home Integration"
 brand: "Google"
@@ -10,15 +11,17 @@ affiliateLabel: "Check Price on Amazon"
 pricePlaceholder: "$349.99"
 rating: 4.4
 pros:
-  ✅ Excellent sound quality
-  ✅ Google Assistant works well
-  ✅ Multi-room capability
-  ✅ Easy smart home integration
-  ✅ Premium build quality
+  - "Excellent sound quality"
+  - "Google Assistant works well"
+  - "Multi-room capability"
+  - "Easy smart home integration"
+  - "Premium build quality"
+
 cons:
-  ❌ No battery (requires power outlet)
-  ❌ Less useful outside Google's ecosystem
-  ❌ 3-pack can be expensive
+  - "No battery (requires power outlet)"
+  - "Less useful outside Google's ecosystem"
+  - "3-pack can be expensive"
+
 
 
 seoTitle: "Google Nest Audio Review (2026): Pros, Cons & Verdict"

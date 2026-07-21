@@ -23,7 +23,6 @@ cons:
   - "3-pack can be expensive"
 
 
-
 seoTitle: "Google Nest Audio Review (2026): Pros, Cons & Verdict"
 seoDescription: "Is Google Nest Audio worth buying in 2026? We review its sound quality, smart features, Google Assistant, pros, cons, and alternatives."
 keywords:

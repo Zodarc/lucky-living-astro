@@ -1,22 +1,60 @@
 ---
-/**
- * reviews/index.astro
- * Product review archive
- */
-
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ProductCard from '@components/ProductCard.astro';
 import { getCollection } from 'astro:content';
+import { CATEGORIES } from '@data/categories';
 import { buildCanonical } from '@utils/seo';
 
 const products = await getCollection(
   'products',
   (entry) => !entry.data.draft
 );
+const categoryCounts = products.reduce(
+  (counts, product) => {
+
+    const category = product.data.category;
+
+    counts[category] = (counts[category] ?? 0) + 1;
+
+    return counts;
+
+  },
+  {} as Record<string, number>
+);
 
 const sortedProducts = products.sort(
   (a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0)
 );
+const selectedCategory = Astro.url.searchParams.get("category");
+
+const filteredProducts = selectedCategory
+  ? sortedProducts.filter(
+      (product) =>
+        product.data.category === selectedCategory
+    )
+  : sortedProducts;
+
+const reviewCategories = [
+  {
+    name: "All",
+    slug: "all",
+    count: products.length
+  },
+
+  ...CATEGORIES.filter(cat =>
+    [
+      "smart-home",
+      "tech-life",
+      "wellness",
+      "style",
+      "deals"
+    ].includes(cat.slug)
+  ).filter(cat => categoryCounts[cat.slug] > 0)
+.map(cat => ({
+    ...cat,
+    count: categoryCounts[cat.slug] ?? 0
+  }))
+];
 
 const canonical = buildCanonical('/reviews/');
 ---
@@ -42,7 +80,29 @@ const canonical = buildCanonical('/reviews/');
   </div>
 
 </section>
+<section class="container py-10">
 
+<div class="flex flex-wrap gap-3">
+
+{reviewCategories.map((cat) => (
+
+<a
+href={
+  cat.slug === "all"
+    ? "/reviews/"
+    : `/reviews/?category=${cat.slug}`
+}
+class="px-5 py-2 rounded-full border border-slate-200 hover:bg-slate-100 transition"
+>
+
+{cat.name} ({cat.count})
+</a>
+
+))}
+
+</div>
+
+</section>
 
 <section class="section bg-white">
 
@@ -50,7 +110,7 @@ const canonical = buildCanonical('/reviews/');
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-{sortedProducts.map((product) => (
+{filteredProducts.map((product) => (  
   <ProductCard entry={product} />
 ))}
 

@@ -22,9 +22,34 @@ const categoryCounts = products.reduce(
   {} as Record<string, number>
 );
 
-const sortedProducts = products.sort(
-  (a, b) => (b.data.rating ?? 0) - (a.data.rating ?? 0)
-);
+const sort = Astro.url.searchParams.get("sort") ?? "rating";
+
+let sortedProducts = [...products];
+
+if (sort === "newest") {
+  sortedProducts.sort(
+    (a, b) =>
+      b.data.publishDate.getTime() -
+      a.data.publishDate.getTime()
+  );
+}
+
+else if (sort === "featured") {
+  sortedProducts.sort(
+    (a, b) =>
+      Number(b.data.featured) -
+      Number(a.data.featured)
+  );
+}
+
+else {
+  // default: highest rated
+  sortedProducts.sort(
+    (a, b) =>
+      (b.data.rating ?? 0) -
+      (a.data.rating ?? 0)
+  );
+}
 const selectedCategory = Astro.url.searchParams.get("category");
 
 const filteredProducts = selectedCategory
@@ -41,19 +66,21 @@ const reviewCategories = [
     count: products.length
   },
 
-  ...CATEGORIES.filter(cat =>
-    [
-      "smart-home",
-      "tech-life",
-      "wellness",
-      "style",
-      "deals"
-    ].includes(cat.slug)
-  ).filter(cat => categoryCounts[cat.slug] > 0)
-.map(cat => ({
-    ...cat,
-    count: categoryCounts[cat.slug] ?? 0
-  }))
+  ...CATEGORIES
+    .filter(cat =>
+      [
+        "smart-home",
+        "tech-life",
+        "wellness",
+        "style",
+        "deals"
+      ].includes(cat.slug)
+    )
+    .filter(cat => categoryCounts[cat.slug] > 0)
+    .map(cat => ({
+      ...cat,
+      count: categoryCounts[cat.slug] ?? 0
+    }))
 ];
 
 const canonical = buildCanonical('/reviews/');
@@ -99,6 +126,40 @@ class="px-5 py-2 rounded-full border border-slate-200 hover:bg-slate-100 transit
 </a>
 
 ))}
+
+</div>
+
+</section>
+<section class="container pb-8">
+
+<div class="flex flex-wrap gap-3 items-center">
+
+<span class="text-sm font-semibold text-slate-500">
+Sort:
+</span>
+
+<a
+href="/reviews/?sort=rating"
+class="px-4 py-2 rounded-full border hover:bg-slate-100"
+>
+⭐ Highest Rated
+</a>
+
+
+<a
+href="/reviews/?sort=newest"
+class="px-4 py-2 rounded-full border hover:bg-slate-100"
+>
+🆕 Newest
+</a>
+
+
+<a
+href="/reviews/?sort=featured"
+class="px-4 py-2 rounded-full border hover:bg-slate-100"
+>
+💰 Featured Deals
+</a>
 
 </div>
 

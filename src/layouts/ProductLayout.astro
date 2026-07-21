@@ -96,24 +96,54 @@ const stars = data.rating ? renderStars(data.rating) : null;
     <!-- ── Review header grid ───────────────────────────── -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16 items-start">
 
-      <!-- Product image -->
-      <div class="rounded-2xl overflow-hidden bg-slate-50 aspect-square flex items-center justify-center">
-        {data.image ? (
-          <img
-            src={data.image}
-            alt={data.imageAlt || data.name}
-            width="600"
-            height="600"
-            class="w-full h-full object-contain p-6"
-            loading="eager"
-            fetchpriority="high"
-          />
-        ) : (
-          <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
-            No image available
-          </div>
-        )}
+      <!-- Product gallery -->
+<div class="space-y-4">
+
+  <div class="rounded-2xl overflow-hidden bg-slate-50 aspect-square flex items-center justify-center">
+
+    {data.image ? (
+      <img
+        src={data.image}
+        alt={data.imageAlt || data.name}
+        width="600"
+        height="600"
+        class="w-full h-full object-contain p-6"
+        loading="eager"
+        fetchpriority="high"
+      />
+    ) : (
+      <div class="text-slate-400 text-sm">
+        No image available
       </div>
+    )}
+
+  </div>
+
+
+  {data.gallery && data.gallery.length > 0 && (
+
+    <div class="grid grid-cols-4 gap-3">
+
+      {data.gallery.map((img) => (
+
+        <div class="rounded-xl overflow-hidden bg-slate-50 border border-slate-200">
+
+          <img
+            src={img}
+            alt={data.name}
+            loading="lazy"
+            class="w-full h-20 object-contain p-2"
+          />
+
+        </div>
+
+      ))}
+
+    </div>
+
+  )}
+
+</div>
 
       <!-- Product info -->
       <div class="flex flex-col gap-5">
@@ -235,6 +265,77 @@ const stars = data.rating ? renderStars(data.rating) : null;
 
       </div>
     )}
+    <!-- Quick Verdict -->
+{data.verdict && (
+
+<div class="rounded-2xl bg-slate-900 text-white p-8 mb-12">
+
+<h2 class="font-serif text-2xl font-bold mb-3">
+Our Verdict
+</h2>
+
+<p class="text-slate-300 leading-relaxed">
+{data.verdict}
+</p>
+
+</div>
+
+)}
+{data.bestFor && data.bestFor.length > 0 && (
+
+<div class="mb-12">
+
+<h2 class="font-serif text-2xl font-bold mb-5">
+Best For
+</h2>
+
+<div class="flex flex-wrap gap-3">
+
+{data.bestFor.map((item)=>(
+
+<span class="px-4 py-2 rounded-full bg-slate-100 text-sm text-slate-700">
+✓ {item}
+</span>
+
+))}
+
+</div>
+
+</div>
+
+)}
+{data.specs && Object.keys(data.specs).length > 0 && (
+
+<div class="mb-12">
+
+<h2 class="font-serif text-2xl font-bold mb-5">
+Specifications
+</h2>
+
+
+<div class="border rounded-2xl overflow-hidden">
+
+{Object.entries(data.specs).map(([key,value]) => (
+
+<div class="grid grid-cols-2 border-b last:border-none">
+
+<div class="p-4 font-semibold bg-slate-50">
+{key}
+</div>
+
+<div class="p-4 text-slate-600">
+{value}
+</div>
+
+</div>
+
+))}
+
+</div>
+
+</div>
+
+)}
 
     <!-- ── Review body ────────────────────────────────────── -->
     <div class="max-w-prose prose prose-lg prose-slate">

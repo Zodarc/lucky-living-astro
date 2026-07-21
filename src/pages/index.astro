@@ -11,6 +11,7 @@
  *   6. Editor picks  — featured articles
  *   7. Newsletter    — full-width signup
  */
+import SectionHeader from '@components/SectionHeader.astro';
 import BaseLayout          from '@layouts/BaseLayout.astro';
 import ArticleCard         from '@components/ArticleCard.astro';
 import ProductCard         from '@components/ProductCard.astro';
@@ -373,7 +374,7 @@ const heroArticle        = featuredArticles[0] ?? latestArticles[0] ?? null;
        [3] hover: lift + image zoom + panel rise + arrow slide
 ═══════════════════════════════════════════════════════════════ -->
 <section
-  class="cat-section relative py-20 lg:py-28 overflow-hidden"
+  class="home-section cat-section relative overflow-hidden"
   aria-labelledby="categories-heading"
 >
 
@@ -598,7 +599,7 @@ const heroArticle        = featuredArticles[0] ?? latestArticles[0] ?? null;
 
 {latestArticles.length > 0 && (
   <section
-    class="la-section relative py-20 lg:py-28 overflow-hidden bg-white"
+    class="home-section la-section relative overflow-hidden bg-white"
     aria-labelledby="latest-heading"
   >
 
@@ -863,7 +864,7 @@ const heroArticle        = featuredArticles[0] ?? latestArticles[0] ?? null;
 ═══════════════════════════════════════════════════════════════ -->
 {topProducts.length > 0 && (
   <section
-    class="pr-section relative py-20 lg:py-28 overflow-hidden"
+    class="home-section pr-section relative overflow-hidden"
     aria-labelledby="products-heading"
   >
 

@@ -303,6 +303,15 @@
   @media (min-width: 1024px) { .container { padding-inline: 2.5rem; } }
   @media (min-width: 1280px) { .container { padding-inline: 3rem;   } }
 
+  .home-section {
+  padding-block: 3rem;
+}
+
+@media (min-width: 1024px) {
+  .home-section {
+    padding-block: 4rem;
+  }
+}
   .section {
     padding-block: 4rem;
   }

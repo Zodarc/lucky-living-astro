@@ -1442,4 +1442,45 @@ const heroArticle        = featuredArticles[0] ?? latestArticles[0] ?? null;
       opacity: 1;
     }
   }
+  /* Featured Reviews Homepage Layout */
+
+  .pr-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.8fr);
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .pr-supporting {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+
+    .pr-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pr-supporting {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+
+  }
+
+
+  /* Mobile */
+  @media (max-width: 640px) {
+
+    .pr-supporting {
+      grid-template-columns: 1fr;
+    }
+
+  }
+
 </style>
+
